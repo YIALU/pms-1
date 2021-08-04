@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.cost.dao.PayInfoDao">
+
+    <resultMap id="payInfoResultMap" type="com.mioto.pms.module.cost.model.PayInfo">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="payTime" column="t_pay_time"/>
+        <result property="payType" column="t_pay_type"/>
+        <result property="payAmount" column="t_pay_amount"/>
+        <result property="billNumber" column="t_bill_number"/>
+    </resultMap>
+
+    <sql id="payInfoAliasColumns">
+        t.`id` as t_id,
+        t.`pay_time` as t_pay_time,
+        t.`pay_type` as t_pay_type,
+        t.`pay_amount` as t_pay_amount,
+        t.`bill_number` as t_bill_number
+    </sql>
+
+    <insert id="insert">
+        insert into pay_info
+        (`id`,`pay_time`,`pay_type`,`pay_amount`,`bill_number`)
+        values
+        (#{id},#{payTime},#{payType},#{payAmount},#{billNumber})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.cost.model.PayInfo">
+        insert into pay_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="payTime != null">
+                `pay_time`,
+            </if>
+            <if test="payType != null">
+                `pay_type`,
+            </if>
+            <if test="payAmount != null">
+                `pay_amount`,
+            </if>
+            <if test="billNumber != null">
+                `bill_number`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="payTime != null">
+                #{payTime},
+            </if>
+            <if test="payType != null">
+                #{payType},
+            </if>
+            <if test="payAmount != null">
+                #{payAmount},
+            </if>
+            <if test="billNumber != null">
+                #{billNumber},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="pay">
+        insert into pay_info (`pay_time`,`pay_type`,`pay_amount`,`bill_number`) values
+        <foreach collection="payInfoList" item="item" separator="," open="(" close=")">
+            #{item.payTime},#{item.payType},#{item.payAmount},#{item.billNumber}
+        </foreach>
+    </insert>
+
+    <update id="update">
+        update pay_info
+        set `pay_time` = #{payTime},`pay_type` = #{payType},`pay_amount` = #{payAmount},`bill_number` = #{billNumber}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update pay_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="payTime != null">
+                `pay_time` = #{payTime},
+            </if>
+            <if test="payType != null">
+                `pay_type` = #{payType},
+            </if>
+            <if test="payAmount != null">
+                `pay_amount` = #{payAmount},
+            </if>
+            <if test="billNumber != null">
+                `bill_number` = #{billNumber},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from pay_info where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from pay_info where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="payInfoResultMap">
+        SELECT <include refid="payInfoAliasColumns"/> FROM pay_info t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="payInfoResultMap">
+        SELECT <include refid="payInfoAliasColumns"/> FROM pay_info t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="payTime != null and payTime != ''">
+                AND t.pay_time = #{payTime}
+            </if>
+            <if test="payType != null and payType != ''">
+                AND t.pay_type = #{payType}
+            </if>
+            <if test="payAmount != null and payAmount != ''">
+                AND t.pay_amount = #{payAmount}
+            </if>
+            <if test="billNumber != null and billNumber != ''">
+                AND t.bill_number = #{billNumber}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByPager" resultType="com.mioto.pms.module.cost.model.PayListVO">
+        select a.pay_time payTime,a.pay_amount payAmount,a.pay_type payType,CONCAT(f.address,e.room_name) roomInfo,g.`name` costType
+        from pay_info a
+        LEFT JOIN cost_detail b on a.bill_number = b.bill_child_number
+        left JOIN cost_info c on b.cost_info_id = c.id
+        left join rental_info d on c.rental_id = d.id
+        left join room e on e.id = d.room_id
+        left join site f on e.site_id = f.id
+        LEFT JOIN dictionary g on b.cost_type = g.id
+        <if test="tenantInfo != null and tenantInfo != ''">
+        left join rental_tenant h on d.id = h.rental_id
+        left join tenant_info i on t.tenant_id = i.id
+        </if>
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="costType != null and costType != ''">
+                AND b.cost_type = #{costType}
+            </if>
+            <if test="payType != null and payType != ''">
+                AND a.pay_type = #{payType}
+            </if>
+            <if test="siteId != null and siteId != ''">
+                AND e.site_id = #{siteId}
+            </if>
+            <if test="tenantInfo != null and tenantInfo != ''">
+                AND (i.name = #{tenantInfo} or i.phone = #{tenantInfo})
+            </if>
+            <if test="payTime != null and payTime != ''">
+                AND date_format(a.pay_time,'%Y-%m')=#{payTime}
+            </if>
+            <if test="userId != null">
+                AND e.user_id = #{userId}
+            </if>
+        </trim>
+        order by a.pay_time desc
+    </select>
+</mapper>

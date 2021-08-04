@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.personal.dao.PersonalDao">
+    <resultMap id="personalResultMap" type="com.mioto.pms.module.personal.model.Personal">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="personalType" column="t_personal_type"/>
+        <result property="phone" column="t_phone"/>
+        <result property="card" column="t_card"/>
+        <result property="desc" column="t_desc"/>
+        <result property="userId" column="t_user_id"/>
+    </resultMap>
+
+
+        <resultMap id="personalDTOResultMap" type="com.mioto.pms.module.personal.model.PersonalDTO">
+            <id property="id" column="t_id" jdbcType="VARCHAR"/>
+            <result property="name" column="t_name"/>
+            <result property="personalType" column="t_personal_type"/>
+            <result property="personalTypeName" column="t_personal_type_name"/>
+            <result property="phone" column="t_phone"/>
+            <result property="card" column="t_card"/>
+            <result property="desc" column="t_desc"/>
+            <result property="userId" column="t_user_id"/>
+        </resultMap>
+
+    <sql id="personalAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`personal_type` AS t_personal_type,
+        t.`phone` AS t_phone,
+        t.`card` AS t_card,
+        t.`desc` AS t_desc,
+         t.user_id AS t_user_id
+    </sql>
+
+    <sql id="personalDTOAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`personal_type` AS t_personal_type,
+        d.name AS t_personal_type_name,
+        t.`phone` AS t_phone,
+        t.`card` AS t_card,
+        t.`desc` AS t_desc,
+         t.user_id AS t_user_id
+    </sql>
+
+    <insert id="insertIgnoreNull" keyProperty="id" useGeneratedKeys="true">
+        insert into personal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="name != null">
+                `name`,
+            </if>
+            <if test="personalType != null">
+                `personal_type`,
+            </if>
+            <if test="phone != null">
+                `phone`,
+            </if>
+            <if test="card != null">
+                `card`,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="personalType != null">
+                #{personalType},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="card != null">
+                #{card},
+            </if>
+            <if test="desc != null">
+                #{desc},
+            </if>
+            <if test="userId != null">
+                #{userId}
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update personal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="personalType != null">
+             `personal_type` = #{personalType},
+            </if>
+            <if test="phone != null">
+             `phone` = #{phone},
+            </if>
+            <if test="card != null">
+             `card` = #{card},
+            </if>
+            <if test="desc != null">
+             `desc` = #{desc},
+            </if>
+            <if test="userId != null">
+                user_id=#{userId},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from personal  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from personal where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="personalResultMap">
+        SELECT <include refid="personalAliasColumns"/> FROM personal t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="personalDTOResultMap">
+        SELECT <include refid="personalDTOAliasColumns"/> FROM personal t left join  dictionary d on t.`personal_type`=d.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="personalType != null">
+                AND t.`personal_type` = #{personalType}
+            </if>
+            <if test="phone != null">
+                AND t.`phone` = #{phone}
+            </if>
+            <if test="card != null">
+                AND t.`card` = #{card}
+            </if>
+            <if test="desc != null">
+                AND t.`desc` = #{desc}
+            </if>
+            <if test="userId != null">
+                AND  t.user_id=#{userId},
+            </if>
+        </trim>
+    </select>
+
+    <select id="findOwner" resultMap="personalResultMap">
+        SELECT <include refid="personalAliasColumns"/> FROM personal t where t.personal_type= "26f6b09c31e146829f6865e3983bdd0c"
+    </select>
+</mapper>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.cost.dao.CostInfoDao">
+
+    <resultMap id="costInfoResultMap" type="com.mioto.pms.module.cost.model.CostInfo">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="rentalId" column="t_rental_id"/>
+        <result property="billNumber" column="t_bill_number"/>
+        <result property="totalAmount" column="t_total_amount"/>
+        <result property="payStatus" column="pay_status"/>
+        <result property="createTime" column="t_create_time"/>
+        <result property="isSend" column="t_is_send"/>
+    </resultMap>
+
+    <resultMap id="costDetailBOMap" type="com.mioto.pms.module.cost.model.CostDetailBO" extends="costInfoResultMap">
+        <collection property="costDetailList" column="t_id" select="com.mioto.pms.module.cost.dao.CostDetailDao.findDynamicListByCostInfoId"/>
+    </resultMap>
+
+    <resultMap id="costListVOMap" type="com.mioto.pms.module.cost.model.CostListVO">
+        <result property="id" column="id"/>
+        <association property="address" column="site_id" select="com.mioto.pms.module.site.dao.SiteDao.findAddressDetailById"/>
+        <collection property="costDetailListVOList" column="id" select="com.mioto.pms.module.cost.dao.CostDetailDao.findCostDetailListVO"/>
+    </resultMap>
+
+    <resultMap id="costDetailVOMap" type="com.mioto.pms.module.cost.model.CostDetailVO">
+        <result property="id" column="id"/>
+        <association property="costRoomVO" column="room_id" select="com.mioto.pms.module.room.dao.RoomDao.findCostRoom"/>
+        <collection property="costDetailListVOList" column="id" select="com.mioto.pms.module.cost.dao.CostDetailDao.findCostDetailListVO"/>
+    </resultMap>
+
+
+
+    <sql id="costInfoAliasColumns">
+        t.`id` as t_id,
+        t.`rental_id` as t_rental_id,
+        t.`bill_number` as t_bill_number,
+        t.`total_amount` as t_total_amount,
+        t.`pay_status` as t_pay_status,
+        t.`create_time` as t_create_time,
+        t.`is_send` as t_is_send
+    </sql>
+
+    <insert id="insert">
+        insert into cost_info
+        (`id`,`rental_id`,`bill_number`,`total_amount`)
+        values
+        (#{id},#{rentalId},#{billNumber},#{totalAmount})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.cost.model.CostInfo">
+        insert into cost_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="rentalId != null">
+                `rental_id`,
+            </if>
+            <if test="billNumber != null">
+                `bill_number`,
+            </if>
+            <if test="totalAmount != null">
+                `total_amount`,
+            </if>
+            <if test="createTime != null">
+                `create_time`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="rentalId != null">
+                #{rentalId},
+            </if>
+            <if test="billNumber != null">
+                #{billNumber},
+            </if>
+            <if test="totalAmount != null">
+                #{totalAmount},
+            </if>
+            <if test="createTime != null">
+               #{createTime},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update cost_info
+        set `rental_id` = #{rentalId},`bill_number` = #{billNumber},`total_amount` = #{totalAmount}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update cost_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="rentalId != null">
+                `rental_id` = #{rentalId},
+            </if>
+            <if test="billNumber != null">
+                `bill_number` = #{billNumber},
+            </if>
+            <if test="totalAmount != null">
+                `total_amount` = #{totalAmount},
+            </if>
+            <if test="isSend != null">
+                `is_send` = #{isSend},
+            </if>
+            <if test="payStatus != null">
+                `pay_status` = #{payStatus},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="batchSend">
+        update cost_info set is_send = 1 where id in
+        <foreach collection="costInfoIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="batchChangePayStatus">
+        update cost_info set pay_status = 1 where bill_number in
+        <foreach collection="billNumbers" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+    <update id="updateAmount">
+        update cost_info set total_amount = (select sum(amount) from cost_detail where cost_info_id = #{id}) where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from cost_info where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from cost_info where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="costInfoResultMap">
+        SELECT <include refid="costInfoAliasColumns"/> FROM cost_info t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="costInfoResultMap">
+        SELECT <include refid="costInfoAliasColumns"/> FROM cost_info t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="rentalId != null and rentalId != ''">
+                AND t.rental_id = #{rentalId}
+            </if>
+            <if test="billNumber != null and billNumber != ''">
+                AND t.bill_number = #{billNumber}
+            </if>
+            <if test="totalAmount != null and totalAmount != ''">
+                AND t.total_amount = #{totalAmount}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findLastDynamicCost" resultMap="costDetailBOMap">
+        SELECT <include refid="costInfoAliasColumns"/> FROM cost_info t
+        WHERE t.rental_id = #{rentalId}
+        ORDER BY t.create_time desc limit 1
+    </select>
+
+    <select id="findCostList" resultMap="costListVOMap">
+        select a.id,a.bill_number billNumber,a.total_amount totalAmount,c.`name` tenantName,c.phone tenantPhone,e.site_id,a.is_send isSend
+        from cost_info a
+        left join rental_tenant b on a.rental_id = b.rental_id
+        left join tenant_info c on b.tenant_id = c.id
+        left join rental_info d on a.rental_id = d.id
+        left join room e on d.room_id = e.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="billNumber != null and billNumber != ''">
+                AND a.bill_number = #{billNumber}
+            </if>
+            <if test="payTime != null and payTime != ''">
+                AND date_format(a.create_time,'%Y-%m')=#{payTime}
+            </if>
+            <if test="siteId != null and siteId != ''">
+                AND e.site_id = #{siteId}
+            </if>
+            <if test="tenantInfo != null and tenantInfo != ''">
+                AND (c.name = #{tenantInfo} or c.phone = #{tenantInfo})
+            </if>
+            <if test="payStatus != null">
+                AND a.pay_status = #{payStatus}
+            </if>
+            <if test="userId != null">
+                AND e.user_id = #{userId}
+            </if>
+        </trim>
+        group by a.id
+        order by a.create_time desc
+    </select>
+
+    <select id="findDetail" resultMap="costDetailVOMap">
+        select a.id,a.bill_number billNumber,a.total_amount totalAmount,c.`name` tenantName,c.phone tenantPhone,d.room_id
+        from cost_info a
+        left join rental_tenant b on a.rental_id = b.rental_id
+        left join tenant_info c on b.tenant_id = c.id
+        left join rental_info d on a.rental_id = d.id
+        where a.id = #{costInfoId}
+        group by a.id
+    </select>
+    <select id="findByBillNumbers" resultType="com.mioto.pms.module.cost.model.CostInfo">
+        select a.bill_number billNumber,case when sum(a.total_amount) = sum(b.pay_amount) then 1 else 0 end payStatus
+        from cost_info a
+        left join pay_info b on locate(a.bill_number,b.bill_number)
+        where a.bill_number in
+        <foreach collection="billNumbers" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        group by a.bill_number
+    </select>
+</mapper>

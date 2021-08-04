@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.price.dao.PriceDao">
+    <resultMap id="priceResultMap" type="com.mioto.pms.module.price.model.Price">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="number" column="t_number"/>
+        <result property="name" column="t_name"/>
+        <result property="type" column="t_type"/>
+        <result property="unitPrice" column="t_unit_price"/>
+        <result property="status" column="t_status"/>
+        <result property="userId" column="t_userId"/>
+        <result property="creationTime" column="t_creation_time"/>
+    </resultMap>
+
+    <sql id="priceAliasColumns">
+        t.`id` AS t_id,
+        t.`number` AS t_number,
+        t.`name` AS t_name,
+        t.`type` AS t_type,
+        t.`unit_price` AS t_unit_price,
+        t.`status` AS t_status,
+        t.`user_id` AS t_userId,
+        t.`creation_time` AS t_creation_time
+ </sql>
+
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id">
+        insert into price
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">
+                `number`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="unitPrice != null">
+                `unit_price`,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
+            <if test="creationTime != null">
+                `creation_time`,
+            </if>
+ </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">
+                #{number},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="unitPrice != null">
+                #{unitPrice},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="creationTime != null">
+                #{creationTime},
+            </if>
+
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update price
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">
+             `number` = #{number},
+            </if>
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="type != null">
+             `type` = #{type},
+            </if>
+            <if test="unitPrice != null">
+             `unit_price` = #{unitPrice},
+            </if>
+            <if test="status != null">
+             `status` = #{status},
+            </if>
+            <if test="userId != null">
+             `userId` = #{userId},
+            </if>
+            <if test="creationTime != null">
+             `creation_time` = #{creationTime},
+            </if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from price  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from price where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="priceResultMap">
+        SELECT <include refid="priceAliasColumns"/> FROM price t left join user u on t.`user_id` = u.id where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="priceResultMap">
+        SELECT <include refid="priceAliasColumns"/> FROM price t left join user u on t.`user_id` = u.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="number != null">
+                AND t.`number` = #{number}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="type != null">
+                AND t.`type` = #{type}
+            </if>
+            <if test="status != null">
+                AND t.`status` = #{status}
+            </if>
+            <if test="userId != null">
+                AND t.`user_id` = #{userId}
+            </if>
+            <if test="creationTime != null">
+                AND t.`creation_time` = #{creationTime}
+            </if>
+        </trim>
+        order by t.number
+    </select>
+
+    <select id="findRentFeeByRoomId" resultType="java.lang.Double">
+        select b.unit_price from room_pricing_strategy a
+        LEFT JOIN price b on a.pricing_strategy_id = b.id
+        LEFT JOIN dictionary c on c.id = b.type
+        where a.room_id = #{roomId} and c.type = 'RENT_FEE'
+    </select>
+
+    <select id="findByRoomId" resultMap="priceResultMap">
+        select <include refid="priceAliasColumns"/> from price t
+        LEFT JOIN room_pricing_strategy a on a.pricing_strategy_id = t.id
+        where a.room_id = #{roomId}
+    </select>
+</mapper>

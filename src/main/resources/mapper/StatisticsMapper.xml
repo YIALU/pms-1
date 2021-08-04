@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mioto.pms.module.statistics.dao.StatisticsDao">
+
+
+    <select id="findRoomCount" resultType="com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO">
+        select count(a.id) roomCount,count(b.id) rentalRoomCount,count(c.id) meterElectCount,count(d.id) meterWaterCount from room a
+        left join rental_info b on a.id = b.room_id and b.`status` = 1
+        left join device_detail c on a.id = c.room_id and c.device_type_id = 'caa918dfcdc14283bb009368c811ef16'
+        left join device_detail d on a.id = d.room_id and d.device_type_id = '1f579c18f2ca4f5a90fff4929eb4645f'
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="userId != null">
+                AND a.user_id = #{userId}
+            </if>
+        </trim>
+    </select>
+
+    <select id="feeCompletion" resultType="java.lang.Double">
+        select  count(c.id)/count(b.id) * 100 from cost_info a
+        left join cost_detail b on a.id = b.cost_info_id
+        LEFT JOIN pay_info c on b.bill_child_number = c.bill_number
+        <if test="userId != null">
+            left join rental_info d on a.rental_id = d.id
+            left join room e on d.room_id = e.id
+        </if>
+        where date_format(a.create_time,"%m") = #{month}
+        <if test="userId != null">
+            and e.user_id = #{userId}
+        </if>
+    </select>
+</mapper>

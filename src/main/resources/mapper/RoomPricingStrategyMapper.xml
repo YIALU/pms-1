@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mioto.pms.module.room.dao.RoomPricingStrategyDao">
+
+
+    <insert id="insertRelations">
+        insert into room_pricing_strategy (room_id,pricing_strategy_id) values
+        <foreach collection="array" item="item" separator=",">
+            (#{roomId},#{item})
+        </foreach>
+    </insert>
+    <delete id="delByRoomId">
+        delete from room_pricing_strategy where room_id = #{roomId}
+    </delete>
+
+    <select id="findStrategysByRoomId" resultMap="com.mioto.pms.module.price.dao.PriceDao.priceResultMap">
+        select <include refid="com.mioto.pms.module.price.dao.PriceDao.priceAliasColumns"/> FROM room_pricing_strategy a
+            left join price t on a.pricing_strategy_id =t.id where a.room_id = #{roomId}
+    </select>
+</mapper>

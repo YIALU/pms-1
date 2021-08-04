@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.rental.dao.RentalInfoDao">
+
+    <resultMap id="rentalInfoResultMap" type="com.mioto.pms.module.rental.model.RentalInfo">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="roomId" column="t_room_id"/>
+        <result property="startTime" column="t_start_time"/>
+        <result property="endTime" column="t_end_time"/>
+        <result property="deposit" column="t_deposit"/>
+        <result property="waterMeterVal" column="t_water_meter_val"/>
+        <result property="electricityMeterVal" column="t_electricity_meter_val"/>
+        <result property="coalGasVal" column="t_coal_gas_val"/>
+        <result property="status" column="t_status"/>
+        <result property="createDate" column="t_create_date"/>
+    </resultMap>
+
+    <resultMap id="rentalDetailVOMap" type="com.mioto.pms.module.rental.model.RentalDetailVO" extends="rentalInfoResultMap">
+        <collection property="tenantInfoList" column="t_id" select="com.mioto.pms.module.rental.dao.TenantInfoDao.findListByRentalId"/>
+        <collection property="rentalFileList" column="t_id" select="com.mioto.pms.module.rental.dao.RentalFileDao.findRentalFileListByRentalId"/>
+    </resultMap>
+
+    <resultMap id="rentalListVOMap" type="com.mioto.pms.module.rental.model.RentalListVO">
+        <result column="roomId" property="roomId"/>
+        <association property="rentFee" column="roomId" select="com.mioto.pms.module.price.dao.PriceDao.findRentFeeByRoomId"/>
+    </resultMap>
+
+    <resultMap id="cancellationVOMap" type="com.mioto.pms.module.rental.model.CancellationVO">
+        <collection property="costDetailList" column="costInfoId" select="com.mioto.pms.module.cost.dao.CostDetailDao.findCostDetailListVO"/>
+    </resultMap>
+
+    <sql id="rentalInfoAliasColumns">
+        t.`id` as t_id,
+        t.`room_id` as t_room_id,
+        t.`start_time` as t_start_time,
+        t.`end_time` as t_end_time,
+        t.`deposit` as t_deposit,
+        t.`water_meter_val` as t_water_meter_val,
+        t.`electricity_meter_val` as t_electricity_meter_val,
+        t.`coal_gas_val` as t_coal_gas_val,
+        t.`contract_file_id` as t_contract_file_id,
+        t.`id_card_file_id` as t_id_card_file_id,
+        t.`status` as t_status,
+        t.`create_date` as t_create_date
+    </sql>
+
+    <insert id="insert">
+        insert into rental_info
+        (`id`,`room_id`,`start_time`,`end_time`,`deposit`,`water_meter_val`,`electricity_meter_val`,`coal_gas_val`,`status`)
+        values
+        (#{id},#{roomId},#{startTime},#{endTime},#{deposit},#{waterMeterVal},#{electricityMeterVal},#{coalGasVal},#{status})
+    </insert>
+
+    <insert id="insertIgnoreNull" parameterType="com.mioto.pms.module.rental.model.RentalInfo">
+        insert into rental_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="roomId != null">
+                `room_id`,
+            </if>
+            <if test="startTime != null">
+                `start_time`,
+            </if>
+            <if test="endTime != null">
+                `end_time`,
+            </if>
+            <if test="deposit != null">
+                `deposit`,
+            </if>
+            <if test="waterMeterVal != null">
+                `water_meter_val`,
+            </if>
+            <if test="electricityMeterVal != null">
+                `electricity_meter_val`,
+            </if>
+            <if test="coalGasVal != null">
+                `coal_gas_val`,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="createDate != null">
+                `create_date`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="roomId != null">
+                #{roomId},
+            </if>
+            <if test="startTime != null">
+                #{startTime},
+            </if>
+            <if test="endTime != null">
+                #{endTime},
+            </if>
+            <if test="deposit != null">
+                #{deposit},
+            </if>
+            <if test="waterMeterVal != null">
+                #{waterMeterVal},
+            </if>
+            <if test="electricityMeterVal != null">
+                #{electricityMeterVal},
+            </if>
+            <if test="coalGasVal != null">
+                #{coalGasVal},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="createDate != null">
+                #{createDate},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update rental_info
+        set `room_id` = #{roomId},`start_time` = #{startTime},`end_time` = #{endTime},`deposit` = #{deposit},`water_meter_val` = #{waterMeterVal},`electricity_meter_val` = #{electricityMeterVal},`coal_gas_val` = #{coalGasVal},`status` = #{status}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update rental_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="roomId != null">
+                `room_id` = #{roomId},
+            </if>
+            <if test="startTime != null">
+                `start_time` = #{startTime},
+            </if>
+            <if test="endTime != null">
+                `end_time` = #{endTime},
+            </if>
+            <if test="deposit != null">
+                `deposit` = #{deposit},
+            </if>
+            <if test="waterMeterVal != null">
+                `water_meter_val` = #{waterMeterVal},
+            </if>
+            <if test="electricityMeterVal != null">
+                `electricity_meter_val` = #{electricityMeterVal},
+            </if>
+            <if test="coalGasVal != null">
+                `coal_gas_val` = #{coalGasVal},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from rental_info where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from rental_info where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="rentalInfoResultMap">
+        SELECT <include refid="rentalInfoAliasColumns"/> FROM rental_info t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="rentalListVOMap">
+        select a.id as roomId,a.room_name as roomName,a.style as roomStyle,
+               b.id as rentalId,b.start_time as startTime,b.end_time as endTime,
+               case when b.id is null then 0 else 1 end as roomStatus,d.phone,
+               d.name as tenantName
+        from room a
+        left join rental_info b on a.id = b.room_id
+        left join rental_tenant c on c.rental_id = b.id
+        left join tenant_info d on d.id = c.tenant_id
+        <if test="siteId != null">
+            left join site e on a.site_id = e.id
+            left join dictionary f on e.district_id = f.id
+        </if>
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            (b.`status` = 1 or b.`status` is null)
+            <if test="siteId != null">
+                AND locate(#{siteId},f.`level`)
+            </if>
+            <if test="tenantInfo != null and tenantInfo != ''">
+                AND (locate(#{tenantInfo},d.name) or locate(#{tenantInfo},d.phone))
+            </if>
+            <if test="userId != null">
+                AND a.user_id = #{userId}
+            </if>
+        </trim>
+        group by a.id
+        order by b.create_date desc
+    </select>
+
+    <select id="findDetailById" resultMap="rentalDetailVOMap">
+        SELECT <include refid="rentalInfoAliasColumns"/> FROM rental_info t where t.id = #{id}
+    </select>
+
+    <select id="findByRoomIdAndStatus" resultMap="rentalInfoResultMap">
+        SELECT <include refid="rentalInfoAliasColumns"/> FROM rental_info t where t.room_id = #{roomId} and t.`status` =#{status}
+    </select>
+
+    <select id="findCancellation" resultMap="cancellationVOMap">
+        select d.id_card idCard,d.name as tenantName,e.id costInfoId
+        from (select * from cost_info where rental_id = #{rentalId} order by create_time desc limit 1 ) e
+        left join rental_info b  on b.id = e.rental_id
+        left join rental_tenant c on c.rental_id = b.id
+        left join tenant_info d on d.id = c.tenant_id
+        group by c.rental_id
+    </select>
+</mapper>

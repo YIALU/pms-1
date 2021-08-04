@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.user.dao.FunctionDao">
+    <resultMap id="functionResultMap" type="com.mioto.pms.module.user.model.Function">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="path" column="t_path"/>
+        <result property="method" column="t_method"/>
+        <result property="code" column="t_code"/>
+        <result property="pid" column="t_pid"/>
+        <result property="sortNo" column="t_sort_no"/>
+    </resultMap>
+
+    <resultMap id="functionVOMap" type="com.mioto.pms.module.user.model.FunctionVO" extends="functionResultMap">
+
+    </resultMap>
+
+    <sql id="functionAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`path` AS t_path,
+        t.`method` AS t_method,
+        t.`code` AS t_code,
+        t.`pid` AS t_pid,
+        t.`sort_no` AS t_sort_no
+    </sql>
+
+
+    <insert id="insertIgnoreNull">
+        insert into function
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="path != null">
+                `path`,
+            </if>
+            <if test="method != null">
+                `method`,
+            </if>
+            <if test="code != null">
+                `code`,
+            </if>
+            <if test="pid != null">
+                `pid`,
+            </if>
+
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="path != null">
+                #{path},
+            </if>
+            <if test="method != null">
+                #{method},
+            </if>
+            <if test="code != null">
+                #{code},
+            </if>
+            <if test="pid != null">
+                #{pid},
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertPermissions">
+        insert into role_function (`role_id`,`function_id`) values
+        <foreach collection="functionIds" item="functionId" separator=",">
+            (#{roleId},#{functionId})
+        </foreach>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update function
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="path != null">
+             `path` = #{path},
+            </if>
+            <if test="method != null">
+             `method` = #{method},
+            </if>
+            <if test="code != null">
+             `code` = #{code},
+            </if>
+            <if test="pid != null">
+             `pid` = #{pid},
+            </if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from function  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from function where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="delPermissions">
+        delete from role_function where role_id = #{roleId}
+    </delete>
+
+
+    <select id="findByColumn" resultMap="functionResultMap">
+        SELECT <include refid="functionAliasColumns"/> FROM function t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="functionResultMap">
+        SELECT <include refid="functionAliasColumns"/> FROM function t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="path != null">
+                AND t.`path` = #{path}
+            </if>
+            <if test="method != null">
+                AND t.`method` = #{method}
+            </if>
+            <if test="code != null">
+                AND t.`code` = #{code}
+            </if>
+            <if test="pid != null">
+                AND t.`pid` = #{pid}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByRoleId" resultMap="functionVOMap">
+        SELECT <include refid="functionAliasColumns"/>,
+        case when (select count(1) from role_function a where t.id =a.function_id and a.role_id = #{roleId}) > 0 then 1 else 0 end selected
+        FROM function t
+    </select>
+</mapper>

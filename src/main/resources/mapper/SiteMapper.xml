@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.site.dao.SiteDao">
+    <resultMap id="siteResultMap" type="com.mioto.pms.module.site.model.Site">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="number" column="t_number"/>
+        <result property="districtId" column="t_district_id"/>
+        <result property="address" column="t_address"/>
+        <result property="userId" column="t_userId"/>
+    </resultMap>
+
+
+        <resultMap id="siteDTOResultMap" type="com.mioto.pms.module.site.model.SiteDTO">
+            <id property="id" column="t_id" jdbcType="VARCHAR"/>
+            <result property="number" column="t_number"/>
+            <result property="districtId" column="t_district_id"/>
+            <result property="address" column="t_address"/>
+            <result property="provinceName" column="t_provinceName"/>
+            <result property="cityName" column="t_cityName"/>
+            <result property="districtName" column="t_districtName"/>
+            <result property="userId" column="t_userId"/>
+        </resultMap>
+
+    <resultMap id="siteExcelResultMap" type="com.mioto.pms.module.site.model.SiteExcel">
+        <result property="number" column="t_number"/>
+        <result property="address" column="t_address"/>
+        <result property="provinceName" column="t_provinceName"/>
+        <result property="cityName" column="t_cityName"/>
+        <result property="districtName" column="t_districtName"/>
+        <result property="username" column="t_username"/>
+    </resultMap>
+
+    <sql id="siteAliasColumns">
+        t.`id` AS t_id,
+        t.`number` AS t_number,
+        t.`district_id` AS t_district_id,
+        t.user_id AS t_userId,
+        t.`address` AS t_address
+    </sql>
+
+    <sql id="siteDTOAliasColumns">
+        t.`id` AS t_id,
+        t.`number` AS t_number,
+        t.`district_id` AS t_district_id,
+        t.`address` AS t_address,
+         t.user_id AS t_userId,
+        d.name AS t_districtName,
+        d1.name AS t_cityName,
+        d2.name AS t_provinceName
+    </sql>
+
+    <sql id="siteExcelAliasColumns">
+        t.`id` AS t_id,
+        t.`number` AS t_number,
+        t.`district_id` AS t_district_id,
+        t.`address` AS t_address,
+        t.user_id AS t_userId,
+        u.username AS t_username,
+        d.name AS t_districtName,
+        d1.name AS t_cityName,
+        d2.name AS t_provinceName
+    </sql>
+
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id">
+        insert into site
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">
+                `number`,
+            </if>
+            <if test="districtId != null">
+                `district_id`,
+            </if>
+            <if test="address != null">
+                `address`,
+            </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="number != null">
+                #{number},
+            </if>
+            <if test="districtId != null">
+                #{districtId},
+            </if>
+            <if test="address != null">
+                #{address},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertExcel">
+        insert into site (`number`,`district_id`,`address`,`user_id`)
+        values
+        <foreach collection="list" item="item"  separator=",">
+            ( #{item.number},
+            (select d.id from dictionary d left join dictionary d1 on d.pid =d1.id  where d.name= #{item.districtName} and d1.name=#{item.cityName})  ,
+      #{item.address},(select u.id from user u where u.username =#{username}))
+        </foreach>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update site
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">
+             `number` = #{number},
+            </if>
+            <if test="districtId != null">
+             `district_id` = #{districtId},
+            </if>
+            <if test="address != null">
+             `address` = #{address},
+            </if>
+            <if test="userId != null">
+                `user_id` = #{userId},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from site  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from site where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="siteResultMap">
+        SELECT <include refid="siteAliasColumns"/> FROM site t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="siteDTOResultMap">
+        SELECT <include refid="siteDTOAliasColumns"/> FROM site t
+        left join dictionary d on t.district_id = d.id
+        left join dictionary d1 on d.pid = d1.id
+        left join dictionary d2 on d1.pid = d2.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="number != null">
+                AND t.`number` = #{number}
+            </if>
+            <if test="districtId != null">
+                AND d.`pid` = #{districtId}
+            </if>
+            <if test="address != null">
+                AND locate(#{address},t.`address`)
+            </if>
+            <if test="userId != null">
+                `user_id` = #{userId},
+            </if>
+        </trim>
+    </select>
+    
+    <select id="findExcelByIds" resultMap="siteExcelResultMap">
+        SELECT <include refid="siteExcelAliasColumns"/> FROM site t left join dictionary d on t.district_id = d.id
+        left join dictionary d1 on d.pid = d1.id left join dictionary d2 on d1.pid = d2.id left join user u on t.user_id =u.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="ids !=null and ids.length > 0">
+                t.id in
+                <foreach collection="ids" open="(" separator="," close=")" item="id">
+                    #{id}
+                </foreach>
+            </if>
+        </trim>
+    </select>
+
+    <select id="findAddressById" resultType="java.lang.String">
+        select address from site where id = #{id}
+    </select>
+    <select id="findAddressDetailById" resultType="java.lang.String">
+        select CONCAT(e.name, d.name, c.name, b.address) as address
+        from site b
+        left join dictionary c on c.id = b.district_id
+        left join dictionary d on c.pid = d.id
+        left join dictionary e on d.pid = e.id
+        where b.id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.device.dao.DeviceDao">
+
+    <resultMap id="deviceResultMap" type="com.mioto.pms.module.device.model.Device">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="deviceId" column="t_device_id"/>
+        <result property="focus" column="t_focus"/>
+        <result property="name" column="t_name"/>
+        <result property="deviceTypeId" column="t_device_type_id"/>
+        <result property="deviceModel" column="t_device_model"/>
+        <result property="factory" column="t_factory"/>
+        <result property="code" column="t_code"/>
+        <result property="desc" column="t_desc"/>
+        <result property="roomId" column="t_roomId"/>
+        <result property="price" column="t_price"/>
+        <result property="lastData" column="t_last_data"/>
+        <result property="lastTime" column="t_last_time"/>
+    </resultMap>
+
+    <resultMap id="deviceDTOResultMap" type="com.mioto.pms.module.device.model.DeviceDTO" extends="deviceResultMap">
+        <result property="roomName" column="t_roomName"/>
+    </resultMap>
+
+    <sql id="deviceAliasColumns">
+        t.`id` AS t_id, t.device_id AS t_device_id,
+        t.device_model AS t_device_model, t.focus AS t_focus,
+        t.`name` AS t_name, t.device_type_id AS t_device_type_id,
+        t.factory AS t_factory, t.code AS t_code, t.`desc` AS t_desc,
+        t.room_id AS t_roomId, t.price AS t_price,
+        t.last_data as t_last_data, t.last_time as t_last_time
+    </sql>
+
+    <insert id="add" keyProperty="id" useGeneratedKeys="true">
+        insert into device_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">
+                device_id,
+            </if>
+            <if test="deviceModel != null">
+                device_model,
+            </if>
+            <if test="focus != null">
+                focus,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="deviceTypeId != null">
+                device_type_id,
+            </if>
+            <if test="factory != null">
+                factory,
+            </if>
+            <if test="code != null">
+                code,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="roomId != null">
+                `room_id`,
+            </if>
+            <if test="price != null">
+            `price`,
+        </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deviceId != null">
+                #{deviceId},
+            </if>
+            <if test="deviceModel != null">
+                #{deviceModel},
+            </if>
+            <if test="focus != null">
+                #{focus},
+            </if>
+            <if test="name != null">
+               #{name},
+            </if>
+            <if test="deviceTypeId != null">
+                #{deviceTypeId},
+            </if>
+            <if test="factory != null">
+                #{factory},
+            </if>
+            <if test="code != null">
+                #{code},
+            </if>
+            <if test="desc != null">
+               #{desc},
+            </if>
+            <if test="roomId != null">
+                #{roomId},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+        </trim>
+
+    </insert>
+    <insert id="insertAll">
+        insert into device_detail (device_id,device_model,focus,`name`,device_type_id,factory,code,`desc`, room_id, price)
+     values
+     <foreach collection="list" item="item" separator=",">
+         ( #{deviceId},#{deviceModel},#{focus}, #{name},  #{deviceTypeId},   #{factory}, #{code}, #{desc},#{roomId},#{price})
+     </foreach>>
+    </insert>
+
+    <select id="findList" resultMap="deviceDTOResultMap">
+        select <include refid="deviceAliasColumns"/>,r.room_name AS t_roomName from  device_detail t
+        left join  room r on t.room_id = r.id
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="id != null and id != ''" >
+              and t.id=  #{id}
+            </if>
+            <if test="deviceId != null and deviceId != ''" >
+                and t.device_id=  #{deviceId}
+            </if>
+            <if test="deviceModel != null and deviceModel != ''" >
+                and t.device_model=  #{deviceModel}
+            </if>
+            <if test="focus != null and focus !=''">
+               and t.focus= #{focus}
+            </if>
+            <if test="name != null and name !=''">
+             and t.name=   #{name}
+            </if>
+            <if test="deviceTypeId != null and deviceTypeId !=''">
+              and t.device_type_id =  #{deviceTypeId}
+            </if>
+            <if test="factory != null and factory != ''">
+              and t.factory=  #{factory}
+            </if>
+            <if test="desc != null and desc != ''">
+            and t.desc= #{desc}
+            </if>
+            <if test="roomId != null and roomId != ''">
+                and t.room_id= #{roomId}
+            </if>
+            <if test="price != null and price != ''">
+                and t.price= #{price}
+            </if>
+        </trim>
+    </select>
+    
+    <select id="findByIds" resultMap="deviceResultMap">
+        select <include refid="deviceAliasColumns"/> from device_detail t  where t.id in
+        <foreach collection="array" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="updateIgnoreNull">
+        update device_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="deviceTypeId != null">
+                `device_type_id` = #{deviceTypeId},
+            </if>
+            <if test="deviceModel != null">
+                `device_model`= #{deviceModel},
+            </if>
+            <if test="factory != null">
+                `factory` = #{factory},
+            </if>
+            <if test="desc != null">
+                `desc` = #{desc},
+            </if>
+            <if test="focus != null">
+                `focus` = #{focus},
+            </if>
+            <if test="code != null">
+                `code` = #{code},
+            </if>
+            <if test="deviceId != null">
+                `device_id` = #{deviceId},
+            </if>
+            <if test="roomId != null ">
+                room_id= #{roomId}
+            </if>
+            <if test="price != null ">
+               price= #{price}
+            </if>
+            <if test="lastData != null ">
+                last_data= #{lastData}
+            </if>
+            <if test="lastTime != null ">
+                last_time= #{lastTime}
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="addRoomDeviceRelation">
+        <foreach collection="list" item="item">
+            update device_detail set room_id = #{roomId} , price= #{item.price} where id = #{item.deviceId};
+        </foreach>
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from device_detail  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from device_detail where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="clearRoomRelation">
+        update device_detail set room_id = '' where room_id = #{roomId}
+    </update>
+
+    <select id="find" resultMap="deviceResultMap">
+        SELECT <include refid="deviceAliasColumns"/> FROM device_detail t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="deviceTypeId != null">
+                AND t.`device_type_id` = #{deviceTypeId}
+            </if>
+            <if test="deviceModel != null">
+                AND  t.device_model = #{deviceModel},
+            </if>
+            <if test="factory != null">
+                AND t.`factory` = #{factory}
+            </if>
+            <if test="desc != null">
+                AND t.`desc` = #{desc}
+            </if>
+            <if test="focus != null">
+                AND t.`focus` = #{focus}
+            </if>
+            <if test="code != null">
+                AND t.`code` = #{code}
+            </if>
+            <if test="deviceId != null">
+                AND t.`device_id` = #{deviceId}
+            </if>
+            <if test="roomId != null ">
+                and t.room_id= #{roomId}
+            </if>
+            <if test="price != null ">
+                and t.price= #{price}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findById" resultMap="deviceResultMap">
+        select <include refid="deviceAliasColumns"/>from  device_detail t where t.id=#{id}
+    </select>
+
+    <select id="findByRoomId" resultMap="deviceResultMap">
+        SELECT <include refid="deviceAliasColumns"/> FROM device_detail t where t.room_id= #{roomId}
+    </select>
+
+
+</mapper>

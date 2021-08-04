@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.rental.dao.TenantInfoDao">
+
+    <resultMap id="tenantInfoResultMap" type="com.mioto.pms.module.rental.model.TenantInfo">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="name" column="t_name"/>
+        <result property="sex" column="t_sex"/>
+        <result property="nativePlace" column="t_native_place"/>
+        <result property="idCard" column="t_id_card"/>
+        <result property="phone" column="t_phone"/>
+    </resultMap>
+
+    <sql id="tenantInfoAliasColumns">
+        t.`id` as t_id,
+        t.`name` as t_name,
+        t.`sex` as t_sex,
+        t.`native_place` as t_native_place,
+        t.`id_card` as t_id_card,
+        t.`phone` as t_phone
+    </sql>
+
+    <insert id="insert">
+        insert into tenant_info
+        (`id`,`name`,`sex`,`native_place`,`id_card`,`phone`)
+        values
+        (#{id},#{name},#{sex},#{nativePlace},#{idCard},#{phone})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.rental.model.TenantInfo">
+        insert into tenant_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="sex != null">
+                `sex`,
+            </if>
+            <if test="nativePlace != null">
+                `native_place`,
+            </if>
+            <if test="idCard != null">
+                `id_card`,
+            </if>
+            <if test="phone != null">
+                `phone`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="sex != null">
+                #{sex},
+            </if>
+            <if test="nativePlace != null">
+                #{nativePlace},
+            </if>
+            <if test="idCard != null">
+                #{idCard},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update tenant_info
+        set `name` = #{name},`sex` = #{sex},`native_place` = #{nativePlace},`id_card` = #{idCard},`phone` = #{phone}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update tenant_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+                `name` = #{name},
+            </if>
+            <if test="sex != null">
+                `sex` = #{sex},
+            </if>
+            <if test="nativePlace != null">
+                `native_place` = #{nativePlace},
+            </if>
+            <if test="idCard != null">
+                `id_card` = #{idCard},
+            </if>
+            <if test="phone != null">
+                `phone` = #{phone},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from tenant_info where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from tenant_info where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="tenantInfoResultMap">
+        SELECT <include refid="tenantInfoAliasColumns"/> FROM tenant_info t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="tenantInfoResultMap">
+        SELECT <include refid="tenantInfoAliasColumns"/> FROM tenant_info t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND t.name = #{name}
+            </if>
+            <if test="sex != null and sex != ''">
+                AND t.sex = #{sex}
+            </if>
+            <if test="nativePlace != null and nativePlace != ''">
+                AND t.native_place = #{nativePlace}
+            </if>
+            <if test="idCard != null and idCard != ''">
+                AND t.id_card = #{idCard}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND t.phone = #{phone}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findListByRentalId" resultMap="tenantInfoResultMap">
+        SELECT <include refid="tenantInfoAliasColumns"/> FROM tenant_info t
+        left join rental_tenant a on t.id = a.tenant_id
+        where a.rental_id = #{rentalId}
+    </select>
+
+</mapper>

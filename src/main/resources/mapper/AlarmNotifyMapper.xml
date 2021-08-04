@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.notify.dao.AlarmNotifyDao">
+
+    <resultMap id="alarmNotifyResultMap" type="com.mioto.pms.module.notify.model.AlarmNotify">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="email" column="t_email"/>
+        <result property="phone" column="t_phone"/>
+    </resultMap>
+
+    <sql id="alarmNotifyAliasColumns">
+        t.`id` as t_id,
+        t.`email` as t_email,
+        t.`phone` as t_phone
+    </sql>
+
+    <insert id="insert">
+        insert into alarm_notify
+        (`id`,`email`,`phone`)
+        values
+        (#{id},#{email},#{phone})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.notify.model.AlarmNotify">
+        insert into alarm_notify
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="email != null">
+                `email`,
+            </if>
+            <if test="phone != null">
+                `phone`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="email != null">
+                #{email},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update alarm_notify
+        set `email` = #{email},`phone` = #{phone}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update alarm_notify
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="email != null">
+                `email` = #{email},
+            </if>
+            <if test="phone != null">
+                `phone` = #{phone},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from alarm_notify where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from alarm_notify where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="alarmNotifyResultMap">
+        SELECT <include refid="alarmNotifyAliasColumns"/> FROM alarm_notify t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="alarmNotifyResultMap">
+        SELECT <include refid="alarmNotifyAliasColumns"/> FROM alarm_notify t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="email != null and email != ''">
+                AND t.email = #{email}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND t.phone = #{phone}
+            </if>
+        </trim>
+    </select>
+
+    <select id="find" resultMap="alarmNotifyResultMap">
+        SELECT <include refid="alarmNotifyAliasColumns"/> FROM alarm_notify t
+    </select>
+
+</mapper>

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.meter.dao.MeterReadingDao">
+    <resultMap id="meterReadingResultMap" type="com.mioto.pms.module.meter.model.MeterReading">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="number" column="t_number"/>
+        <result property="name" column="t_name"/>
+        <result property="type" column="t_type"/>
+        <result property="date" column="t_date"/>
+        <result property="time" column="t_time"/>
+        <result property="userId" column="t_user_id"/>
+        <result property="frequency" column="t_frequency"/>
+    </resultMap>
+
+    <resultMap id="roomMeterReadingResultMap" type="com.mioto.pms.module.meter.model.RoomMeterReading" extends="meterReadingResultMap">
+        <result property="roomId" column="roomId"/>
+    </resultMap>
+
+    <sql id="meterReadingAliasColumns">
+        t.`id` AS t_id,
+        t.`number` AS t_number,
+        t.`name` AS t_name,
+        t.`type` AS t_type,
+        t.`date` AS t_date,
+        t.`time` AS t_time,
+        t.user_id AS t_user_id,
+        t.frequency as t_frequency
+    </sql>
+
+
+    <insert id="insertIgnoreNull" keyProperty="id" useGeneratedKeys="true">
+        insert into meter_reading
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+           <if test="number != null">
+                `number`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="date != null">
+                `date`,
+            </if>
+            <if test="time != null">
+                `time`,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="frequency != null">
+                frequency,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="number != null">
+                #{number},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="date != null">
+                #{date},
+            </if>
+            <if test="time != null">
+                #{time},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="frequency != null">
+                #{frequency}
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update meter_reading
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="number != null">
+             `number` = #{number},
+            </if>
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="type != null">
+             `type` = #{type},
+            </if>
+            <if test="date != null">
+             `date` = #{date},
+            </if>
+            <if test="time != null">
+             `time` = #{time},
+            </if>
+            <if test="userId != null">
+                user_id=#{userId},
+            </if>
+            <if test="frequency != null">
+                frequency = #{frequency}
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from meter_reading  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from meter_reading where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="meterReadingResultMap">
+        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="meterReadingResultMap">
+        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="number != null">
+                AND t.`number` = #{number}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="type != null">
+                AND t.`type` = #{type}
+            </if>
+            <if test="date != null">
+                AND t.`date` = #{date}
+            </if>
+            <if test="time != null">
+                AND t.`time` = #{time}
+            </if>
+            <if test="userId != null">
+               AND  t.user_id=#{userId},
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByRoomId" resultMap="meterReadingResultMap">
+        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t left join room a on a.meter_water = t.id where a.id = #{roomId}
+    </select>
+
+    <select id="findByRentalId" resultMap="meterReadingResultMap">
+        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t
+        left join room a on a.meter_Water = t.id left join rental_info b on a.id = b.room_id
+        where b.id = #{rentalId}
+    </select>
+
+    <select id="findRentingMeterReadings" resultMap="roomMeterReadingResultMap">
+        SELECT <include refid="meterReadingAliasColumns"/>,a.id FROM meter_reading t
+        left join room a on a.meter_Water = t.id left join rental_info b on a.id = b.room_id
+        where b.status = 1
+    </select>
+</mapper>

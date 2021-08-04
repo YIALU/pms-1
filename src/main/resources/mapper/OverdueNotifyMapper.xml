@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.notify.dao.OverdueNotifyDao">
+
+    <resultMap id="overdueNotifyResultMap" type="com.mioto.pms.module.notify.model.OverdueNotify">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="immediateNotice" column="t_immediate_notice"/>
+        <result property="overdue" column="t_overdue"/>
+        <result property="overdueDay" column="t_overdue_day"/>
+    </resultMap>
+
+    <sql id="overdueNotifyAliasColumns">
+        t.`id` as t_id,
+        t.`immediate_notice` as t_immediate_notice,
+        t.`overdue` as t_overdue,
+        t.`overdue_day` as t_overdue_day
+    </sql>
+
+    <insert id="insert">
+        insert into overdue_notify
+        (`id`,`immediate_notice`,`overdue`,`overdue_day`)
+        values
+        (#{id},#{immediateNotice},#{overdue},#{overdueDay})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.notify.model.OverdueNotify">
+        insert into overdue_notify
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="immediateNotice != null">
+                `immediate_notice`,
+            </if>
+            <if test="overdue != null">
+                `overdue`,
+            </if>
+            <if test="overdueDay != null">
+                `overdue_day`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="immediateNotice != null">
+                #{immediateNotice},
+            </if>
+            <if test="overdue != null">
+                #{overdue},
+            </if>
+            <if test="overdueDay != null">
+                #{overdueDay},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update overdue_notify
+        set `immediate_notice` = #{immediateNotice},`overdue` = #{overdue},`overdue_day` = #{overdueDay}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update overdue_notify
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="immediateNotice != null">
+                `immediate_notice` = #{immediateNotice},
+            </if>
+            <if test="overdue != null">
+                `overdue` = #{overdue},
+            </if>
+            <if test="overdueDay != null">
+                `overdue_day` = #{overdueDay},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from overdue_notify where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from overdue_notify where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="overdueNotifyResultMap">
+        SELECT <include refid="overdueNotifyAliasColumns"/> FROM overdue_notify t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="overdueNotifyResultMap">
+        SELECT <include refid="overdueNotifyAliasColumns"/> FROM overdue_notify t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="immediateNotice != null and immediateNotice != ''">
+                AND t.immediate_notice = #{immediateNotice}
+            </if>
+            <if test="overdue != null and overdue != ''">
+                AND t.overdue = #{overdue}
+            </if>
+            <if test="overdueDay != null and overdueDay != ''">
+                AND t.overdue_day = #{overdueDay}
+            </if>
+        </trim>
+    </select>
+
+    <select id="find" resultMap="overdueNotifyResultMap">
+        SELECT <include refid="overdueNotifyAliasColumns"/> FROM overdue_notify t
+    </select>
+
+</mapper>

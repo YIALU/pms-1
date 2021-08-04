@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.user.dao.RoleDao">
+    <resultMap id="roleResultMap" type="com.mioto.pms.module.user.model.Role">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="desc" column="t_desc"/>
+
+        <result property="createTime" column="t_create_time"/>
+    </resultMap>
+
+    <sql id="roleAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`desc` AS t_desc,
+       t.`create_time` AS t_create_time
+    </sql>
+
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id">
+        insert into role
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="createTime != null">
+                `create_time`,
+            </if>
+
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="desc != null">
+                #{desc},
+            </if>
+
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+
+        </trim>
+    </insert>
+
+    <insert id="insertRoleFunction">
+        insert into role_function (role_id,function_id) values
+        <foreach collection="list" item="item"  separator=",">
+            (#{role.id},#{item.id})
+        </foreach>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update role
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="desc != null">
+             `desc` = #{desc},
+            </if>
+
+            <if test="createTime != null">
+             `create_time` = #{createTime},
+            </if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from role  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from role where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="roleResultMap">
+        SELECT <include refid="roleAliasColumns"/> FROM role t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="roleResultMap">
+        SELECT <include refid="roleAliasColumns"/> FROM role t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="desc != null">
+                AND t.`desc` = #{desc}
+            </if>
+
+            <if test="createTime != null">
+                AND t.`create_time` = #{createTime}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByUserId" resultMap="roleResultMap">
+        select <include refid="roleAliasColumns"/> from role t left join user_role u on t.id = u.role_id where u.user_id=#{id}
+    </select>
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.file.dao.FileDao">
+    <resultMap id="fileResultMap" type="com.mioto.pms.module.file.model.FileInfo">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="createTime" column="t_create_time"/>
+        <result property="filePath" column="t_file_path"/>
+        <result property="desc" column="t_desc"/>
+    </resultMap>
+
+    <sql id="fileAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`create_time` AS t_create_time,
+        t.`file_path` AS t_file_path,
+        t.`desc` AS t_desc
+    </sql>
+
+
+    <insert id="insertIgnoreNull" keyProperty="id" useGeneratedKeys="true">
+        insert into file_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="createTime != null">
+                `create_time`,
+            </if>
+            <if test="filePath != null">
+                `file_path`,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="filePath != null">
+                #{filePath},
+            </if>
+            <if test="desc != null">
+                #{desc},
+            </if>
+
+        </trim>
+    </insert>
+    <insert id="batchInsert">
+        insert into file_info (`id`,`name`,`file_path`,`create_time`,`desc`) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.filePath},#{item.createTime},#{item.desc})
+        </foreach>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update file_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="createTime != null">
+             `create_time` = #{createTime},
+            </if>
+            <if test="filePath != null">
+             `file_path` = #{filePath},
+            </if>
+            <if test="desc != null">
+             `desc` = #{desc},
+            </if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from file_info  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from file_info where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="fileResultMap">
+        SELECT <include refid="fileAliasColumns"/> FROM file_info t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="fileResultMap">
+        SELECT <include refid="fileAliasColumns"/> FROM file_info t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="createTime != null">
+                AND t.`create_time` = #{createTime}
+            </if>
+            <if test="filePath != null">
+                AND t.`file_path` = #{filePath}
+            </if>
+            <if test="desc != null">
+                AND t.`desc` = #{desc}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByIds" resultMap="fileResultMap">
+        select <include refid="fileAliasColumns"/> from file_info t where t.id in
+        <foreach collection="array" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

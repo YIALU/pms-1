@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.weixin.dao.MiniProgramUserDao">
+
+    <resultMap id="miniProgramUserResultMap" type="com.mioto.pms.module.weixin.model.MiniProgramUser">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="wxNickname" column="t_wx_nickname"/>
+        <result property="openId" column="t_open_id"/>
+        <result property="unionId" column="t_union_id"/>
+        <result property="userId" column="t_user_id"/>
+        <result property="userType" column="t_user_type"/>
+    </resultMap>
+
+    <sql id="miniProgramUserAliasColumns">
+        t.`id` as t_id,
+        t.`wx_nickname` as t_wx_nickname,
+        t.`open_id` as t_open_id,
+        t.`union_id` as t_union_id,
+        t.`user_id` as t_user_id,
+        t.`user_type` as t_user_type
+    </sql>
+
+    <insert id="insert">
+        insert into mini_program_user
+        (`id`,`wx_nickname`,`open_id`,`union_id`,`user_id`,`user_type`)
+        values
+        (#{id},#{wxNickname},#{openId},#{unionId},#{userId},#{userType})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.weixin.model.MiniProgramUser">
+        insert into mini_program_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="wxNickname != null">
+                `wx_nickname`,
+            </if>
+            <if test="openId != null">
+                `open_id`,
+            </if>
+            <if test="unionId != null">
+                `union_id`,
+            </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
+            <if test="userType != null">
+                `user_type`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="wxNickname != null">
+                #{wxNickname},
+            </if>
+            <if test="openId != null">
+                #{openId},
+            </if>
+            <if test="unionId != null">
+                #{unionId},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="userType != null">
+                #{userType},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update mini_program_user
+        set `wx_nickname` = #{wxNickname},`open_id` = #{openId},`union_id` = #{unionId},`user_id` = #{userId},`user_type` = #{userType}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update mini_program_user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="wxNickname != null">
+                `wx_nickname` = #{wxNickname},
+            </if>
+            <if test="openId != null">
+                `open_id` = #{openId},
+            </if>
+            <if test="unionId != null">
+                `union_id` = #{unionId},
+            </if>
+            <if test="userId != null">
+                `user_id` = #{userId},
+            </if>
+            <if test="userType != null">
+                `user_type` = #{userType},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from mini_program_user where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from mini_program_user where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="miniProgramUserResultMap">
+        SELECT <include refid="miniProgramUserAliasColumns"/> FROM mini_program_user t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="miniProgramUserResultMap">
+        SELECT <include refid="miniProgramUserAliasColumns"/> FROM mini_program_user t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="wxNickname != null and wxNickname != ''">
+                AND t.wx_nickname = #{wxNickname}
+            </if>
+            <if test="openId != null and openId != ''">
+                AND t.open_id = #{openId}
+            </if>
+            <if test="unionId != null and unionId != ''">
+                AND t.union_id = #{unionId}
+            </if>
+            <if test="userId != null and userId != ''">
+                AND t.user_id = #{userId}
+            </if>
+            <if test="userType != null and userType != ''">
+                AND t.user_type = #{userType}
+            </if>
+        </trim>
+    </select>
+
+</mapper>

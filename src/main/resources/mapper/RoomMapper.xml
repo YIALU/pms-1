@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.room.dao.RoomDao">
+    <resultMap id="roomResultMap" type="com.mioto.pms.module.room.model.Room">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="roomName" column="t_room_name"/>
+        <result property="style" column="t_style"/>
+        <result property="personalId" column="t_personal_id"/>
+        <result property="phone" column="t_phone"/>
+        <result property="meterElect" column="t_meter_elect"/>
+        <result property="meterWater" column="t_meter_water"/>
+        <result property="arrearsId" column="t_arrears_id"/>
+        <result property="userId" column="t_user_id"/>
+        <result property="siteId" column="t_site_id"/>
+    </resultMap>
+
+    <resultMap id="roomDTOResultMap" type="com.mioto.pms.module.room.model.RoomListVO">
+        <result property="id" column="t_id"/>
+        <result property="roomName" column="t_room_name"/>
+        <result property="elect" column="t_elect"/>
+        <result property="water" column="t_water"/>
+        <result property="createTime" column="t_createTime"/>
+        <result property="address" column="t_address"/>
+    </resultMap>
+
+    <resultMap id="roomDetailMap" type="com.mioto.pms.module.room.model.RoomDetailVO" extends="roomResultMap">
+        <collection property="deviceList" column="t_id" select="com.mioto.pms.module.device.dao.DeviceDao.findByRoomId"/>
+        <collection property="furnitureList" column="t_id" select="com.mioto.pms.module.furniture.dao.FurnitureDao.findByRoomId"/>
+        <collection property="priceList" column="t_id" select="com.mioto.pms.module.room.dao.RoomPricingStrategyDao.findStrategysByRoomId"/>
+    </resultMap>
+
+    <sql id="roomAliasColumns">
+        t.`id` AS t_id,
+        t.`room_name` AS t_room_name,
+        t.`style` AS t_style,
+        t.`personal_id` AS t_personal_id,
+        t.`phone` AS t_phone,
+        t.`meter_elect` AS t_meter_elect,
+        t.`meter_water` AS t_meter_water,
+        t.`arrears_id` AS t_arrears_id,
+        t.`user_id` AS t_user_id,
+        t.`site_id` as t_site_id
+    </sql>
+
+    <sql id="roomDTOAliasColumns">
+        t.id as t_id,
+       t.`room_name` AS t_room_name,
+       t.create_time AS t_createTime,
+       d.device_id AS t_elect,
+       d1.device_id AS t_water,
+       s.address as t_address
+    </sql>
+
+
+    <insert id="insertIgnoreNull">
+        insert into room
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="roomName != null">
+                `room_name`,
+            </if>
+            <if test="style != null">
+                `style`,
+            </if>
+            <if test="personalId != null">
+                `personal_id`,
+            </if>
+            <if test="phone != null">
+                `phone`,
+            </if>
+            <if test="meterElect != null">
+                `meter_elect`,
+            </if>
+            <if test="meterWater != null">
+                `meter_water`,
+            </if>
+            <if test="arrearsId != null">
+                `arrears_id`,
+            </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
+            <if test="createTime != null">
+                `create_time`,
+            </if>
+            <if test="siteId != null">
+                `site_id`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="roomName != null">
+                #{roomName},
+            </if>
+            <if test="style != null">
+                #{style},
+            </if>
+            <if test="personalId != null">
+                #{personalId},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="meterElect != null">
+                #{meterElect},
+            </if>
+            <if test="meterWater != null">
+                #{meterWater},
+            </if>
+            <if test="arrearsId != null">
+                #{arrearsId},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+            <if test="createTime != null">
+               #{createTime},
+            </if>
+            <if test="siteId != null">
+                #{siteId},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update room
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="roomName != null">
+             `room_name` = #{roomName},
+            </if>
+            <if test="style != null">
+             `style` = #{style},
+            </if>
+            <if test="personalId != null">
+             `personal_id` = #{personalId},
+            </if>
+            <if test="phone != null">
+             `phone` = #{phone},
+            </if>
+            <if test="meterElect != null">
+             `meter_elect` = #{meterElect},
+            </if>
+            <if test="meterWater != null">
+             `meter_water` = #{meterWater},
+            </if>
+            <if test="arrearsId != null">
+             `arrears_id` = #{arrearsId},
+            </if>
+            <if test="userId != null">
+             `user_id` = #{userId},
+            </if>
+            <if test="siteId != null">
+                `site_id` = #{siteId},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from room  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from room where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="roomResultMap">
+        SELECT <include refid="roomAliasColumns"/> FROM room t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="roomDTOResultMap">
+        SELECT <include refid="roomDTOAliasColumns"/> FROM room t
+        left join device_detail d on (t.id = d.room_id and d.device_type_id="caa918dfcdc14283bb009368c811ef16")
+        left join device_detail d1 on (t.id = d1.room_id and d1.device_type_id="1f579c18f2ca4f5a90fff4929eb4645f")
+        left join site s on t.site_id = s.id
+        left join personal p on t.user_id =p.user_id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="userId != null">
+                AND t.`user_id` = #{userId}
+            </if>
+            <if test="siteId != null">
+                AND t.`site_id` = #{siteId}
+            </if>
+        </trim>
+        order by t.create_time desc
+    </select>
+
+    <select id="findDetailById" resultMap="roomDetailMap">
+        SELECT <include refid="roomAliasColumns"/> FROM room t where t.id = #{id}
+    </select>
+
+    <select id="findCostRoom" resultType="com.mioto.pms.module.room.model.CostRoomVO">
+        select a.style,CONCAT(b.address,a.room_name) as info,c.device_id as meterElectId,d.device_id as meterWaterId
+        from room a left join site b on a.site_id = b.id
+        LEFT JOIN device_detail c on a.id = c.room_id and c.device_type_id ='caa918dfcdc14283bb009368c811ef16'
+        LEFT JOIN device_detail d on a.id = d.room_id and d.device_type_id ='1f579c18f2ca4f5a90fff4929eb4645f'
+        where a.id =#{roomId}
+    </select>
+</mapper>

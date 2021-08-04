@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.user.dao.UserDao">
+    <resultMap id="userResultMap" type="com.mioto.pms.module.user.model.User">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="username" column="t_username"/>
+        <result property="name" column="t_name"/>
+        <result property="nickname" column="t_nickname"/>
+        <result property="password" column="t_password"/>
+        <result property="phone" column="t_phone"/>
+    </resultMap>
+
+    <resultMap id="userVOMap" type="com.mioto.pms.module.user.model.UserVO" extends="userResultMap">
+    </resultMap>
+
+    <resultMap id="loginResultMap" type="com.mioto.pms.module.user.model.User">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="username" column="t_username"/>
+        <result property="name" column="t_name"/>
+        <result property="nickname" column="t_nickname"/>
+        <result property="password" column="t_password"/>
+        <result property="phone" column="t_phone"/>
+       <!-- <association property="role" javaType="com.mioto.pms.module.user.model.Role">
+            <id property="id" column="r_id"/>
+            <result property="name" column="r_name"/>
+            <collection property="roleFunctions" ofType="com.mioto.pms.module.user.model.RoleFunction">
+                <id property="id" column="f_id"/>
+                <result property="roleId" column="f_roleId"/>
+                <result property="functionId" column="f_functionId"/>
+                <result property="state" column="f_state"/>
+            </collection>
+        </association>-->
+    </resultMap>
+
+
+    <sql id="userAliasColumns">
+        t.`id` AS t_id,
+        t.`username` AS t_username,
+        t.name AS t_name,
+        t.nickname AS t_nickname,
+        t.`password` AS t_password,
+        t.`phone` AS t_phone
+    </sql>
+
+    <sql id="loginAliasColumns">
+        t.`id` AS t_id,
+        t.`username` AS t_username,
+        t.name AS t_name,
+        t.nickname AS t_nickname,
+        t.`password` AS t_password,
+        t.`phone` AS t_phone,
+        r.id AS r_id,
+        r.name AS r_name,
+        f.id AS f_id,
+        f.role_id AS f_roleId,
+        f.function_id AS f_functionId,
+        f.state AS f_state
+</sql>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">
+                `username`,
+            </if>
+            <if test="password != null">
+                `password`,
+            </if>
+            <if test="phone != null">
+                `phone`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="nickname != null">
+                `nickname`
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">
+                #{username},
+            </if>
+            <if test="password != null">
+                #{password},
+            </if>
+            <if test="phone != null">
+                #{phone},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="nickname != null">
+               #{nickname}
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertUserRole">
+        insert into user_role (user_id,role_id) values (#{userId},#{roleId})
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update user
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="username != null">
+             `username` = #{username},
+            </if>
+            <if test="password != null">
+             `password` = #{password},
+            </if>
+            <if test="phone != null">
+             `phone` = #{phone},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="nickname != null">
+                #{nickname}
+            </if>
+  </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateUserRole">
+        update user_role set role_id = #{roleId} where user_id = #{userId}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn" >
+        delete from user  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from user where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="delUserRoleByUserId">
+        delete from user_role where user_id = #{userId}
+    </delete>
+    <delete id="delUserRoleByRoleId">
+        delete from user_role where role_id = #{roleId}
+    </delete>
+
+    <select id="findByColumn" resultMap="userVOMap">
+        SELECT <include refid="userAliasColumns"/>,b.name as roleName,b.id as roleId FROM user t
+        left join user_role a on t.id = a.user_id left join role b on a.role_id = b.id
+        where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="userVOMap">
+        SELECT <include refid="userAliasColumns"/>,b.name as roleName,b.id as roleId FROM user t
+        left join user_role a on t.id = a.user_id left join role b on a.role_id = b.id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="username != null">
+                AND t.`username` = #{username}
+            </if>
+            <if test="password != null">
+                AND t.`password` = #{password}
+            </if>
+            <if test="phone != null">
+                AND t.`phone` = #{phone}
+            </if>
+            <if test="name != null">
+             AND t.name=   #{name}
+            </if>
+            <if test="nickname != null">
+             AND t.nickname =   #{nickname}
+            </if>
+        </trim>
+    </select>
+    <select id="findMiniProgramUserList" resultType="com.mioto.pms.module.user.model.MiniProgramUserListVO">
+        select a.id,a.wx_nickname wxNickname, b.`name`,b.phone,concat(f.address,e.room_name) roomInfo,g.name landlord,d.`status`
+        from mini_program_user a
+        LEFT JOIN tenant_info b on a.user_id = b.id
+        left join rental_tenant c on b.id = c.tenant_id
+        left join rental_info d on d.id = c.rental_id
+        left join room e on e.id =d.room_id
+        left join site f on e.site_id = f.id
+        left join user g on e.user_id = g.id
+        where a.user_type = 1
+    </select>
+</mapper>

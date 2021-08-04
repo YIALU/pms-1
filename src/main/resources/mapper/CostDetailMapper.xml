@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+    <mapper namespace="com.mioto.pms.module.cost.dao.CostDetailDao">
+
+    <resultMap id="costDetailResultMap" type="com.mioto.pms.module.cost.model.CostDetail">
+        <id property="id" column="t_id" jdbcType="INTEGER"/>
+        <result property="costInfoId" column="t_cost_info_id"/>
+        <result property="billChildNumber" column="t_bill_child_number"/>
+        <result property="costType" column="t_cost_type"/>
+        <result property="costStartData" column="t_cost_start_data"/>
+        <result property="costEndData" column="t_cost_end_data"/>
+        <result property="costStartTime" column="t_cost_start_time"/>
+        <result property="costEndTime" column="t_cost_end_time"/>
+        <result property="unit" column="t_unit"/>
+        <result property="amount" column="t_amount"/>
+    </resultMap>
+
+    <sql id="costDetailAliasColumns">
+        t.`id` as t_id,
+        t.`cost_info_id` as t_cost_info_id,
+        t.`bill_child_number` as t_bill_child_number,
+        t.`cost_type` as t_cost_type,
+        t.`cost_start_data` as t_cost_start_data,
+        t.`cost_end_data` as t_cost_end_data,
+        t.`cost_start_time` as t_cost_start_time,
+        t.`cost_end_time` as t_cost_end_time,
+        t.`unit` as t_unit,
+        t.`amount` as amount
+    </sql>
+
+    <insert id="insert">
+        insert into cost_detail
+        (`id`,`cost_info_id`,`bill_child_number`,`cost_type`,`cost_start_data`,`cost_end_data`,`cost_start_time`,`cost_end_time`,`unit`)
+        values
+        (#{id},#{costInfoId},#{billChildNumber},#{costType},#{costStartData},#{costEndData},#{costStartTime},#{costEndTime},#{unit})
+    </insert>
+
+    <insert id="insertIgnoreNull" useGeneratedKeys="true" keyProperty="id" parameterType="com.mioto.pms.module.cost.model.CostDetail">
+        insert into cost_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="costInfoId != null">
+                `cost_info_id`,
+            </if>
+            <if test="billChildNumber != null">
+                `bill_child_number`,
+            </if>
+            <if test="costType != null">
+                `cost_type`,
+            </if>
+            <if test="costStartData != null">
+                `cost_start_data`,
+            </if>
+            <if test="costEndData != null">
+                `cost_end_data`,
+            </if>
+            <if test="costStartTime != null">
+                `cost_start_time`,
+            </if>
+            <if test="costEndTime != null">
+                `cost_end_time`,
+            </if>
+            <if test="unit != null">
+                `unit`,
+            </if>
+            <if test="amount != null">
+                `amount`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="costInfoId != null">
+                #{costInfoId},
+            </if>
+            <if test="billChildNumber != null">
+                #{billChildNumber},
+            </if>
+            <if test="costType != null">
+                #{costType},
+            </if>
+            <if test="costStartData != null">
+                #{costStartData},
+            </if>
+            <if test="costEndData != null">
+                #{costEndData},
+            </if>
+            <if test="costStartTime != null">
+                #{costStartTime},
+            </if>
+            <if test="costEndTime != null">
+                #{costEndTime},
+            </if>
+            <if test="unit != null">
+                #{unit},
+            </if>
+           <if test="amount != null">
+               #{amount},
+           </if>
+        </trim>
+    </insert>
+
+    <update id="update">
+        update cost_detail
+        set `cost_info_id` = #{costInfoId},`bill_child_number` = #{billChildNumber},`cost_type` = #{costType},`cost_start_data` = #{costStartData},`cost_end_data` = #{costEndData},`cost_start_time` = #{costStartTime},`cost_end_time` = #{costEndTime},`unit` = #{unit}
+        where id = #{id}
+    </update>
+
+    <update id="updateIgnoreNull">
+        update cost_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="costInfoId != null">
+                `cost_info_id` = #{costInfoId},
+            </if>
+            <if test="billChildNumber != null">
+                `bill_child_number` = #{billChildNumber},
+            </if>
+            <if test="costType != null">
+                `cost_type` = #{costType},
+            </if>
+            <if test="costStartData != null">
+                `cost_start_data` = #{costStartData},
+            </if>
+            <if test="costEndData != null">
+                `cost_end_data` = #{costEndData},
+            </if>
+            <if test="costStartTime != null">
+                `cost_start_time` = #{costStartTime},
+            </if>
+            <if test="costEndTime != null">
+                `cost_end_time` = #{costEndTime},
+            </if>
+            <if test="unit != null">
+                `unit` = #{unit},
+            </if>
+            <if test="amount != null">
+                `amount` = #{amount},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteByColumn">
+        delete from cost_detail where ${column} = #{value}
+    </delete>
+
+    <delete id="batchDelete">
+        delete from cost_detail where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="costDetailResultMap">
+        SELECT <include refid="costDetailAliasColumns"/> FROM cost_detail t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="costDetailResultMap">
+        SELECT <include refid="costDetailAliasColumns"/> FROM cost_detail t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="costInfoId != null and costInfoId != ''">
+                AND t.cost_info_id = #{costInfoId}
+            </if>
+            <if test="billChildNumber != null and billChildNumber != ''">
+                AND t.bill_child_number = #{billChildNumber}
+            </if>
+            <if test="costType != null and costType != ''">
+                AND t.cost_type = #{costType}
+            </if>
+            <if test="costStartData != null and costStartData != ''">
+                AND t.cost_start_data = #{costStartData}
+            </if>
+            <if test="costEndData != null and costEndData != ''">
+                AND t.cost_end_data = #{costEndData}
+            </if>
+            <if test="costStartTime != null and costStartTime != ''">
+                AND t.cost_start_time = #{costStartTime}
+            </if>
+            <if test="costEndTime != null and costEndTime != ''">
+                AND t.cost_end_time = #{costEndTime}
+            </if>
+            <if test="unit != null and unit != ''">
+                AND t.unit = #{unit}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findByRentalId" resultMap="costDetailResultMap">
+        select <include refid="costDetailAliasColumns"/> FROM cost_detail t
+        left join cost_info a on t.cost_info_id = a.id
+        where a.rental_id = #{rentalId}
+    </select>
+
+    <select id="findDynamicListByCostInfoId" resultMap="costDetailResultMap">
+        select <include refid="costDetailAliasColumns"/> FROM cost_detail t
+        where t.cost_info_id = #{costInfoId} and t.cost_start_data is not null
+    </select>
+
+    <select id="findCostDetailListVO" resultType="com.mioto.pms.module.cost.model.CostDetailListVO">
+        select a.id,a.amount,a.bill_child_number childBillNumber,a.cost_start_data startData,a.cost_type costTypeId,
+        a.cost_end_data endData,a.cost_start_time startDate,a.cost_end_time endDate,a.unit,b.`name` costType,
+        case when a.amount = c.pay_amount then 1 else 0 end payStatus
+        from cost_detail a left join dictionary b on a.cost_type = b.id
+        left join pay_info c on a.bill_child_number = c.bill_number
+        where a.cost_info_id = #{costInfoId}
+    </select>
+
+    <select id="findUnpaidFee" resultMap="costDetailResultMap">
+        select <include refid="costDetailAliasColumns"/> FROM cost_detail t
+        right join pay_info b on t.bill_child_number != b.bill_number
+        left join cost_info c on c.id = t.cost_info_id
+        where c.bill_number in
+        <foreach collection="billNumbers" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        <if test="costType != null and costType != ''">
+            AND t.cost_type = #{costType}
+        </if>
+    </select>
+    <select id="findCountByCostId" resultType="java.lang.Integer">
+        select count(1) from cost_detail where cost_info_id = #{costId}
+    </select>
+</mapper>

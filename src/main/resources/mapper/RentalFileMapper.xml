@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mioto.pms.module.rental.dao.RentalFileDao">
+
+    <insert id="insertRentalFile">
+        insert into rental_file (rental_id,file_id,type) values
+        <foreach collection="list" item="item" separator=",">
+            (#{rentalId},#{item.fileId},#{item.type})
+        </foreach>
+    </insert>
+
+    <delete id="delByRentalId">
+        delete from rental_file where rental_id = #{rentalId}
+    </delete>
+
+    <select id="findRentalFileListByRentalId" resultType="com.mioto.pms.module.rental.model.RentalFileVO">
+        select a.file_id as fileId,a.type,b.name from rental_file a
+        left join file_info b on a.file_id = b.id
+        where a.rental_id = #{rentalId}
+    </select>
+</mapper>

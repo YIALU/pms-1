@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.arrears.dao.ArrearsDao">
+    <resultMap id="arrearsResultMap" type="com.mioto.pms.module.arrears.model.Arrears">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="date" column="t_date"/>
+        <result property="operation" column="t_operation"/>
+        <result property="desc" column="t_desc"/>
+        <result property="userId" column="t_user_id"/>
+    </resultMap>
+
+    <sql id="arrearsAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`date` AS t_date,
+        t.`operation` AS t_operation,
+        t.`desc` AS t_desc,
+        t.`user_id` as t_user_id
+    </sql>
+
+
+    <insert id="insertIgnoreNull">
+        insert into arrears
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="date != null">
+                `date`,
+            </if>
+            <if test="operation != null">
+                `operation`,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="userId != null">
+                `user_id`
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="date != null">
+                #{date},
+            </if>
+            <if test="operation != null">
+                #{operation},
+            </if>
+            <if test="desc != null">
+                #{desc},
+            </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update arrears
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="date != null">
+             `date` = #{date},
+            </if>
+            <if test="operation != null">
+             `operation` = #{operation},
+            </if>
+            <if test="desc != null">
+             `desc` = #{desc},
+            </if>
+            <if test="userId != null">
+            `user_id` =#{userId},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from arrears  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from arrears where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="arrearsResultMap">
+        SELECT <include refid="arrearsAliasColumns"/> FROM arrears t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="arrearsResultMap">
+        SELECT <include refid="arrearsAliasColumns"/> FROM arrears t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="date != null">
+                AND t.`date` = #{date}
+            </if>
+            <if test="operation != null">
+                AND t.`operation` = #{operation}
+            </if>
+            <if test="userId != null">
+                AND t.`user_id` = #{userId}
+            </if>
+        </trim>
+    </select>
+</mapper>

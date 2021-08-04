@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.furniture.dao.FurnitureDao">
+    <resultMap id="furnitureResultMap" type="com.mioto.pms.module.furniture.model.Furniture">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="roomId" column="t_room_id"/>
+        <result property="price" column="t_price"/>
+        <result property="fileId" column="t_file_id"/>
+        <result property="number" column="t_number"/>
+        <result property="siteId" column="t_site_id"/>
+    </resultMap>
+    <resultMap id="furnitureListMap" type="com.mioto.pms.module.furniture.model.FurnitureListVO">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="price" column="t_price"/>
+        <result property="fileId" column="t_file_id"/>
+        <result property="number" column="t_number"/>
+        <association property="siteAddress" column="t_site_id" select="com.mioto.pms.module.site.dao.SiteDao.findAddressById"/>
+    </resultMap>
+    <sql id="furnitureAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`room_id` AS t_room_id,
+        t.`price` AS t_price,
+        t.`file_id` AS t_file_id,
+        t.`number` AS t_number,
+        t.`site_id` AS t_site_id
+    </sql>
+
+
+    <insert id="insertIgnoreNull">
+        insert into furniture
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="roomId != null">
+                `room_id`,
+            </if>
+            <if test="price != null">
+                `price`,
+            </if>
+            <if test="fileId != null">
+                `file_id`,
+            </if>
+            <if test="number != null">
+                `number`,
+            </if>
+            <if test="siteId != null">
+                `site_id`,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="roomId != null">
+                #{roomId},
+            </if>
+            <if test="price != null">
+                #{price},
+            </if>
+            <if test="fileId != null">
+                #{fileId},
+            </if>
+            <if test="number != null">
+                #{number},
+            </if>
+            <if test="siteId != null">
+                #{siteId},
+            </if>
+        </trim>
+    </insert>
+
+    <insert id="insertAll">
+     INSERT INTO furniture (`name`, room_id, price, file_id, `number`,site_id) values
+     <foreach collection="list" item="item" separator="," >
+         (#{name},#{roomId},#{price},#{fileId},#{number},#{siteId})
+     </foreach>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update furniture
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="roomId != null">
+             `room_id` = #{roomId},
+            </if>
+            <if test="price != null">
+             `price` = #{price},
+            </if>
+            <if test="fileId != null">
+             `file_id` = #{fileId},
+            </if>
+            <if test="number != null">
+             `number` = #{number},
+            </if>
+            <if test="siteId != null">
+                `site_id` = #{siteId},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="addRoomRelation">
+        <foreach collection="array" item="item">
+            update furniture set room_id = #{roomId} where id = #{item};
+        </foreach>
+    </update>
+
+    <update id="clearRoomRelation">
+        update furniture set room_id = '' where room_id = #{roomId}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from furniture  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from furniture where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="findByColumn" resultMap="furnitureResultMap">
+        SELECT <include refid="furnitureAliasColumns"/> FROM furniture t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="furnitureListMap">
+        SELECT <include refid="furnitureAliasColumns"/> FROM furniture t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="roomId != null">
+                AND t.`room_id` = #{roomId}
+            </if>
+            <if test="price != null">
+                AND t.`price` = #{price}
+            </if>
+            <if test="fileId != null">
+                AND t.`file_id` = #{fileId}
+            </if>
+            <if test="number != null">
+                AND t.`number` = #{number}
+            </if>
+            <if test="siteId != null">
+                AND t.`site_id` = #{siteId}
+            </if>
+        </trim>
+    </select>
+    <select id="findFurnitureNames" resultType="string">
+        select name from furniture group by name
+    </select>
+
+
+    <select id="findByRoomId" resultMap="furnitureResultMap">
+        SELECT <include refid="furnitureAliasColumns"/> FROM furniture t WHERE t.`room_id` = #{roomId}
+    </select>
+</mapper>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.mioto.pms.module.dictionary.dao.DictionaryDao">
+    <resultMap id="dictionaryResultMap" type="com.mioto.pms.module.dictionary.model.Dictionary">
+        <id property="id" column="t_id" jdbcType="VARCHAR"/>
+        <result property="name" column="t_name"/>
+        <result property="type" column="t_type"/>
+        <result property="code" column="t_code"/>
+        <result property="level" column="t_level"/>
+        <result property="desc" column="t_desc"/>
+        <result property="status" column="t_status"/>
+        <result property="pid" column="t_pid"/>
+    </resultMap>
+
+    <sql id="dictionaryAliasColumns">
+        t.`id` AS t_id,
+        t.`name` AS t_name,
+        t.`type` AS t_type,
+        t.`code` AS t_code,
+        t.`level` AS t_level,
+        t.`desc` AS t_desc,
+        t.`status` AS t_status,
+        t.`pid` AS t_pid
+    </sql>
+
+
+    <insert id="insertIgnoreNull">
+        insert into dictionary
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="type != null">
+                `type`,
+            </if>
+            <if test="code != null">
+                `code`,
+            </if>
+            <if test="level != null">
+                `level`,
+            </if>
+            <if test="desc != null">
+                `desc`,
+            </if>
+            <if test="status != null">
+                `status`,
+            </if>
+            <if test="pid != null">
+                `pid`,
+            </if>
+
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="name != null">
+                #{name},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="code != null">
+                #{code},
+            </if>
+            <if test="level != null">
+                #{level},
+            </if>
+            <if test="desc != null">
+                #{desc},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="pid != null">
+                #{pid},
+            </if>
+
+        </trim>
+    </insert>
+
+    <update id="updateIgnoreNull">
+        update dictionary
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">
+             `name` = #{name},
+            </if>
+            <if test="type != null">
+             `type` = #{type},
+            </if>
+            <if test="code != null">
+             `code` = #{code},
+            </if>
+            <if test="level != null">
+             `level` = #{level},
+            </if>
+            <if test="desc != null">
+             `desc` = #{desc},
+            </if>
+            <if test="status != null">
+             `status` = #{status},
+            </if>
+            <if test="pid != null">
+             `pid` = #{pid},
+            </if>
+
+        </trim>
+        where id = #{id}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteByColumn">
+        delete from dictionary  where ${column} = #{value}
+    </delete>
+
+    <!--批量删除-->
+    <delete id="batchDelete">
+        delete from dictionary where id in
+        <foreach collection="array" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="findByColumn" resultMap="dictionaryResultMap">
+        SELECT <include refid="dictionaryAliasColumns"/> FROM dictionary t where t.${column} = #{value}
+    </select>
+
+    <select id="findList" resultMap="dictionaryResultMap">
+        SELECT <include refid="dictionaryAliasColumns"/> FROM dictionary t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null">
+                AND t.`name` = #{name}
+            </if>
+            <if test="type != null">
+                AND t.`type` = #{type}
+            </if>
+            <if test="code != null">
+                AND t.`code` = #{code}
+            </if>
+            <if test="level != null">
+                AND t.`level` = #{level}
+            </if>
+            <if test="desc != null">
+                AND t.`desc` = #{desc}
+            </if>
+            <if test="status != null">
+                AND t.`status` = #{status}
+            </if>
+            <if test="pid != null">
+                AND t.`pid` = #{pid}
+            </if>
+        </trim>
+    </select>
+
+    <select id="findDictionary" resultMap="dictionaryResultMap">
+        SELECT <include refid="dictionaryAliasColumns"/> FROM dictionary t
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="id != null and id != ''">
+                AND t.id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND t.name = #{name}
+            </if>
+            <if test="type != null and type != ''">
+                AND t.type = #{type}
+            </if>
+        </trim>
+        and t.status =1
+    </select>
+</mapper>
