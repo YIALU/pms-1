@@ -24,12 +24,14 @@ import com.mioto.pms.security.utils.JwtTokenUtil;
 import com.mioto.pms.utils.BaseUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.security.Signature;
 import java.util.Base64;
 import java.util.Map;
@@ -41,6 +43,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("wx")
 @Api(tags = "微信相关接口")
+@Slf4j
 public class WxController {
 
     @Resource
@@ -96,8 +99,19 @@ public class WxController {
     @ApiOperation(value = "获取签名")
     @GetMapping("sign")
     public ResultData getSign(String method,String mchid,String serialNo, String url, String body){
-        return ResultData.success(BaseUtil.getWxToken(mchid,serialNo,method,url,body));
+        return ResultData.success(BaseUtil.getRequestSign(mchid,serialNo,method,url,body));
     }
 
 
+    @ApiOperation(value = "获取支付签名")
+    @GetMapping("/pay/sign")
+    public ResultData getPaySign(String appId, String body){
+        return ResultData.success(BaseUtil.getPaySign(appId,body));
+    }
+
+    @ApiOperation(value = "jsapi下单通知地址")
+    @PostMapping("/notify")
+    public void notify(HttpServletRequest request){
+        log.info("支付成功通知:{}");
+    }
 }

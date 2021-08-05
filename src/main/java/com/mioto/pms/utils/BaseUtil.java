@@ -11,6 +11,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.json.JSONUtil;
 import com.mioto.pms.module.user.model.User;
 import com.mioto.pms.module.weixin.model.MiniProgramUser;
 import lombok.extern.slf4j.Slf4j;
@@ -201,9 +202,39 @@ public class BaseUtil {
     public static long intervalDay(Date start,Date end){
         return DateUtil.between(DateUtil.beginOfDay(start),DateUtil.beginOfDay(end), DateUnit.DAY);
     }
+    /**
+     * 请求签名
+     * @param appId 商户号
+     * @param body 请求报文主体
+     * @return
+     */
+    public static String getPaySign(String appId, String body) {
+        String nonceStr = IdUtil.simpleUUID().toUpperCase();
+        long timestamp = System.currentTimeMillis()/1000;
 
+        String message = buildSignStr(appId, String.valueOf(timestamp), nonceStr, body);
+        String signature = "";
+        try {
+            signature = sign(message.getBytes("utf-8"));
+        } catch (Exception e) {
+            log.error("签名错误 - {}",e);
+        }
+        return JSONUtil.createObj().append("appId",appId)
+                .append("paySign",signature)
+                .append("timeStamp",timestamp)
+                .append("nonceStr",nonceStr).toString();
+    }
 
-    public static String getWxToken(String mchid,String serialNo,String method, String url, String body) {
+    /**
+     * 请求签名
+     * @param mchid 商户号
+     * @param serialNo 商户API证书serial_no
+     * @param method HTTP请求的方法
+     * @param url 获取请求的绝对URL
+     * @param body 请求报文主体
+     * @return
+     */
+    public static String getRequestSign(String mchid,String serialNo,String method, String url, String body) {
         String nonceStr = IdUtil.simpleUUID().toUpperCase();
         String schema = "WECHATPAY2-SHA256-RSA2048";
         long timestamp = System.currentTimeMillis() / 1000;
@@ -223,6 +254,12 @@ public class BaseUtil {
                 .append("signature=").append("\"").append(signature).append("\"").toString();
     }
 
+    /**
+     * 计算签名值
+     * @param message
+     * @return
+     * @throws Exception
+     */
     private static String sign(byte[] message) throws Exception{
         Signature sign = Signature.getInstance("SHA256withRSA");
         final String filePath = "F:/work/pms/apiclient_key.pem";
@@ -231,18 +268,37 @@ public class BaseUtil {
         return Base64.getEncoder().encodeToString(sign.sign());
     }
 
+    /**
+     * 生成签名串
+     * @param method
+     * @param url
+     * @param timestamp
+     * @param nonceStr
+     * @param body
+     * @return
+     */
    private static String buildMessage(String method, URL url, long timestamp, String nonceStr, String body) {
         String canonicalUrl = url.getPath();
         if (url.getQuery() != null) {
             canonicalUrl += "?" + url.getQuery();
         }
-        return method + "\n"
-                + canonicalUrl + "\n"
-                + timestamp + "\n"
-                + nonceStr + "\n"
-                + body + "\n";
+       return buildSignStr(method,canonicalUrl,String.valueOf(timestamp),nonceStr,body);
     }
 
+    private static String buildSignStr(String... strings){
+        StrBuilder strBuilder = StrBuilder.create();
+        for (String string : strings) {
+            strBuilder.append(string).append("\n");
+        }
+        return strBuilder.toString();
+    }
+
+    /**
+     * 获取私钥
+     * @param filename
+     * @return
+     * @throws IOException
+     */
     private static PrivateKey getPrivateKey(String filename) throws IOException {
 
         String content = new String(Files.readAllBytes(Paths.get(filename)), "utf-8");
