@@ -2,7 +2,6 @@ package com.mioto.pms.module.cost.service;
 
 import com.mioto.pms.module.cost.model.CostDetail;
 import com.mioto.pms.module.cost.model.EditCostDetailDTO;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -91,4 +90,26 @@ public interface ICostDetailService{
     List<CostDetail> findUnpaidFee(String costType,String[] billNumbers);
 
     int batchEdit(EditCostDetailDTO editCostDetailDTO);
+
+    /**
+     * 根据主账单编号批量修改子账单支付状态
+     * @param billNumbers
+     * @return
+     */
+    int batchChangePayStatus(String[] billNumbers,String costType);
+
+    /**
+     * 根据子账单编号批量修改子账单支付状态
+     * @param billNumbers
+     * @return
+     */
+    int editPayStatus(String[] billNumbers);
+
+    /**
+     * 根据主账单id查询子账单列表
+     * @param costInfoId
+     * @return
+     */
+    List<CostDetail> findListByCostInfoId(String costInfoId);
+
 }

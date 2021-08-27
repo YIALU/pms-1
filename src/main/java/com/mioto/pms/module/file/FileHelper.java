@@ -2,16 +2,14 @@ package com.mioto.pms.module.file;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileTypeUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.text.StrBuilder;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import cn.hutool.extra.qrcode.QrCodeUtil;
 import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.device.model.Device;
+import com.mioto.pms.module.device.model.DeviceDTO;
 import com.mioto.pms.module.file.model.FileInfo;
 import com.mioto.pms.module.file.service.FileService;
 import com.mioto.pms.result.SystemTip;
@@ -26,8 +24,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Date;
-import java.util.Optional;
+import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author admin
@@ -39,6 +38,12 @@ public class FileHelper {
     private String filePath;
     @Resource
     private FileService fileService;
+
+    private String qrCodeFilePath ="/code";
+
+    public static final String QR_CODE_EXT = ".jpg";
+    public static final String ZIP_EXT = ".zip";
+
     /**
      * 创建文件对象
      * @param realPath 文件完整路径
@@ -153,13 +158,42 @@ public class FileHelper {
     }
 
     /**
+     * 文件下载
+     * @param response
+     * @param file
+     */
+    public void downloadZip(HttpServletResponse response, File file) {
+        if (file.exists()) {
+            OutputStream out = null;
+            try {
+                String contentType = "application/x-msdownload";
+                response.setHeader("Content-Disposition", "attachment;filename=" + URLUtil.encode("设备二维码") + ZIP_EXT);
+                response.setContentType(contentType);
+                out = response.getOutputStream();
+                FileUtil.writeToStream(file,out);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }finally {
+                IoUtil.close(out);
+                FileUtil.del(file);
+            }
+        }else {
+            throw new BasicException(SystemTip.FILE_NOT_EXIST);
+        }
+    }
+
+    /**
      * 设备二维码生成方法
      * @param device
      * @throws IOException
      */
     public void createCode(Device device) {
-        String codePath = "/code/";
-        File file = new File(filePath+codePath+device.getDeviceId()+".jpg");
+        String pathName = StrBuilder.create(filePath)
+                .append(qrCodeFilePath)
+                .append(StrUtil.SLASH)
+                .append(device.getDeviceId())
+                .append(QR_CODE_EXT).toString();
+        File file = new File(pathName);
         File touch = FileUtil.touch(file);
         //生成二维码图片，第一个参数为二维码扫码内容
         QrCodeUtil.generate(device.getName(), 200, 300, touch);
@@ -185,7 +219,7 @@ public class FileHelper {
             FileInfo fileInfo = new FileInfo();
             fileInfo.setCreateTime(new Date());
             fileInfo.setName(touch.getName());
-            fileInfo.setFilePath(codePath+ file.getName());
+            fileInfo.setFilePath(qrCodeFilePath + StrUtil.SLASH + file.getName());
             fileInfo.setId(IdUtil.simpleUUID());
             int result = fileService.insertIgnoreNull(fileInfo);
             if (result > 0) {
@@ -196,4 +230,28 @@ public class FileHelper {
         }
     }
 
+
+    public File zipQrCode(List<DeviceDTO> list){
+        if (ObjectUtil.isNotEmpty(list)){
+            StrBuilder strBuilder = StrBuilder.create(filePath)
+                    .append(qrCodeFilePath)
+                    .append(StrUtil.SLASH);
+            String filePath;
+            String zipPath = StrBuilder.create(strBuilder).append(IdUtil.simpleUUID()).append(ZIP_EXT).toString();
+            File[] files = new File[list.size()];
+            int index = 0;
+            for (DeviceDTO deviceDTO : list) {
+                filePath = StrBuilder.create(strBuilder).append(deviceDTO.getDeviceId()).append(QR_CODE_EXT).toString();
+                if (FileUtil.isFile(filePath)) {
+                    files[index] = FileUtil.file(filePath);
+                    index++;
+                }
+            }
+            //TODO 数组去除重复文件 - 实际情况应该是不可能有重复的文件存在的
+            Set<File> fileSet = Arrays.stream(files).collect(Collectors.toSet());
+            files = fileSet.toArray(new File[fileSet.size()]);
+            return ZipUtil.zip(FileUtil.file(zipPath),false,files);
+        }
+        throw new BasicException(SystemTip.ZIP_DEVICE_EMPTY);
+    }
 }

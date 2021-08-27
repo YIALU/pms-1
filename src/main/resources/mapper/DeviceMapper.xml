@@ -64,7 +64,10 @@
             </if>
             <if test="price != null">
             `price`,
-        </if>
+            </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -98,6 +101,9 @@
             <if test="price != null">
                 #{price},
             </if>
+            <if test="userId != null">
+                #{userId},
+            </if>
         </trim>
 
     </insert>
@@ -110,38 +116,33 @@
     </insert>
 
     <select id="findList" resultMap="deviceDTOResultMap">
-        select <include refid="deviceAliasColumns"/>,r.room_name AS t_roomName from  device_detail t
-        left join  room r on t.room_id = r.id
+        select <include refid="deviceAliasColumns"/>,r.room_name AS t_roomName
+        from  device_detail t
+        left join room r on t.room_id = r.id
         <trim prefix="where" prefixOverrides="and | or">
-            <if test="id != null and id != ''" >
-              and t.id=  #{id}
+            <if test="device.id != null and device.id != ''" >
+              and t.id=  #{device.id}
             </if>
-            <if test="deviceId != null and deviceId != ''" >
-                and t.device_id=  #{deviceId}
+            <if test="device.deviceId != null and device.deviceId != ''" >
+                and t.device_id=  #{device.deviceId}
             </if>
-            <if test="deviceModel != null and deviceModel != ''" >
-                and t.device_model=  #{deviceModel}
+            <if test="device.deviceModel != null and device.deviceModel != ''" >
+                and t.device_model=  #{device.deviceModel}
             </if>
-            <if test="focus != null and focus !=''">
-               and t.focus= #{focus}
+            <if test="device.name != null and device.name !=''">
+             and t.name=#{device.name}
             </if>
-            <if test="name != null and name !=''">
-             and t.name=   #{name}
+            <if test="device.deviceTypeId != null and device.deviceTypeId !=''">
+              and t.device_type_id =  #{device.deviceTypeId}
             </if>
-            <if test="deviceTypeId != null and deviceTypeId !=''">
-              and t.device_type_id =  #{deviceTypeId}
+            <if test="device.roomId != null and device.roomId != ''">
+                and t.room_id= #{device.roomId}
             </if>
-            <if test="factory != null and factory != ''">
-              and t.factory=  #{factory}
+            <if test="device.userId != null">
+                and t.user_id= #{device.userId}
             </if>
-            <if test="desc != null and desc != ''">
-            and t.desc= #{desc}
-            </if>
-            <if test="roomId != null and roomId != ''">
-                and t.room_id= #{roomId}
-            </if>
-            <if test="price != null and price != ''">
-                and t.price= #{price}
+            <if test="siteId != null">
+                and r.site_id= #{siteId}
             </if>
         </trim>
     </select>

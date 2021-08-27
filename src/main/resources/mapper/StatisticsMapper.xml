@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.mioto.pms.module.statistics.dao.StatisticsDao">
+    <resultMap id="roomInfoStatisticsVOMap" type="com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO">
+        <association property="meterElectCount" column="userId" select="findMeterElectCount"/>
+        <association property="meterWaterCount" column="userId" select="findMeterWaterCount"/>
+    </resultMap>
 
+    <resultMap id="paymentProgressVOMap" type="com.mioto.pms.module.statistics.model.PaymentProgressVO">
+        <collection property="list" column="{userId=userId,month=yearAndMonth}" select="unpairFeeCompletion"/>
+    </resultMap>
 
-    <select id="findRoomCount" resultType="com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO">
-        select count(a.id) roomCount,count(b.id) rentalRoomCount,count(c.id) meterElectCount,count(d.id) meterWaterCount from room a
+    <resultMap id="paymentVOMap" type="com.mioto.pms.module.statistics.model.PaymentVO">
+        <collection property="paymentTypeVOList" column="{logonUserId=logonUserId,type=type}" select="paymentTypeCount"/>
+        <collection property="costTypeVOList" column="{logonUserId=logonUserId,type=type}" select="costTypeCount"/>
+    </resultMap>
+
+    <select id="findRoomCount" resultMap="roomInfoStatisticsVOMap">
+        select count(a.id) roomCount,count(b.id) rentalRoomCount,
+        <choose>
+            <when test="userId != null">
+                   #{userId}
+            </when>
+            <otherwise>
+                 0
+            </otherwise>
+        </choose> userId
+        from room a
         left join rental_info b on a.id = b.room_id and b.`status` = 1
-        left join device_detail c on a.id = c.room_id and c.device_type_id = 'caa918dfcdc14283bb009368c811ef16'
-        left join device_detail d on a.id = d.room_id and d.device_type_id = '1f579c18f2ca4f5a90fff4929eb4645f'
         <trim prefix="WHERE" prefixOverrides="AND | OR">
             <if test="userId != null">
                 AND a.user_id = #{userId}
@@ -15,17 +34,93 @@
         </trim>
     </select>
 
-    <select id="feeCompletion" resultType="java.lang.Double">
-        select  count(c.id)/count(b.id) * 100 from cost_info a
+    <select id="findMeterElectCount" resultType="java.lang.Integer">
+        select count(1) from device_detail where device_type_id = 'caa918dfcdc14283bb009368c811ef16'
+        <if test="userId != null and userId &gt; 0">
+            AND user_id = #{userId}
+        </if>
+    </select>
+    <select id="findMeterWaterCount" resultType="java.lang.Integer">
+        select count(1) from device_detail where device_type_id = '1f579c18f2ca4f5a90fff4929eb4645f'
+        <if test="userId != null and userId &gt; 0">
+            AND user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="feeCompletion" resultMap="paymentProgressVOMap">
+        select  count(c.id)/count(b.id) * 100 feeCompletion,#{userId} userId,#{month} yearAndMonth from cost_info a
         left join cost_detail b on a.id = b.cost_info_id
         LEFT JOIN pay_info c on b.bill_child_number = c.bill_number
         <if test="userId != null">
             left join rental_info d on a.rental_id = d.id
             left join room e on d.room_id = e.id
         </if>
-        where date_format(a.create_time,"%m") = #{month}
+        where date_format(a.create_time,"%Y-%m") = #{month}
         <if test="userId != null">
             and e.user_id = #{userId}
         </if>
+    </select>
+    <select id="unpairFeeCompletion" resultType="com.mioto.pms.module.statistics.model.UnpairFeeCompletionVO">
+        select sum(a.amount) amount,f.`name` tenantName,concat(g.address,d.room_name) address,datediff(now(),b.create_time) unpairFeeDay from cost_detail a
+        LEFT JOIN cost_info b on a.cost_info_id = b.id
+        left join rental_info c on c.id = b.rental_id
+        left join room d on d.id = c.room_id
+        left join rental_tenant e on c.id = e.rental_id
+        LEFT JOIN tenant_info f on e.tenant_id = f.id
+        left join site g on d.site_id = g.id
+        where a.pay_status = 0 and date_format(b.create_time,"%Y-%m") = #{month}
+        <if test="userId != null">
+          and d.user_id = #{userId}
+        </if>
+        GROUP BY c.id
+        order by b.create_time asc
+    </select>
+
+    <select id="paymentTypeCount" resultType="com.mioto.pms.module.statistics.model.PaymentTypeVO">
+        select sum(a.pay_amount) payAmount,a.pay_type payType
+        from pay_info a
+        <if test="logonUserId != null">
+            left join cost_detail b on a.bill_number = b.bill_child_number
+            left join cost_info c on b.cost_info_id = c.id
+            left join rental_info d on c.rental_id = d.id
+            left join room e on e.id = d.room_id
+        </if>
+        where
+        <if test="type == 1">
+            month(a.pay_time) = month(NOW())
+        </if>
+        <if test="type == 2">
+            year(a.pay_time) = year(NOW())
+        </if>
+        <if test="logonUserId != null">
+            and e.user_id = #{logonUserId}
+        </if>
+        group by a.pay_type
+    </select>
+
+    <select id="costTypeCount" resultType="com.mioto.pms.module.statistics.model.CostTypeVO">
+        select sum(a.pay_amount) amount,b.cost_type costType
+        from pay_info a
+        left join cost_detail b on a.bill_number = b.bill_child_number
+        <if test="logonUserId != null">
+            left join cost_info c on b.cost_info_id = c.id
+            left join rental_info d on c.rental_id = d.id
+            left join room e on e.id = d.room_id
+        </if>
+        where
+        <if test="type == 1">
+            month(a.pay_time) = month(NOW())
+        </if>
+        <if test="type == 2">
+            year(a.pay_time) = year(NOW())
+        </if>
+        <if test="logonUserId != null">
+            and e.user_id = #{logonUserId}
+        </if>
+        group by b.cost_type
+    </select>
+
+    <select id="paymentCount" resultMap="paymentVOMap">
+        select #{logonUserId} logonUserId,#{type} type
     </select>
 </mapper>

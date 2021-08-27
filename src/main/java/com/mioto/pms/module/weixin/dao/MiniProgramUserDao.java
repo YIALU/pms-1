@@ -1,6 +1,6 @@
 package com.mioto.pms.module.weixin.dao;
 
-import com.mioto.pms.module.weixin.model.MiniProgramUser;
+import com.mioto.pms.module.weixin.model.*;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -70,4 +70,22 @@ public interface MiniProgramUserDao{
      * @return
      */
     int batchDelete(Integer[] ids);
+
+    List<TenantHomeVO> findHomeData(Integer logonUserId);
+
+    List<TenantBillVO> findUnpaidFeesVOList(String rentalId);
+
+    List<UnpaidFeesVO> findUnpaidFees(String rentalId);
+
+    List<ContractInfoVO> findContractInfo(String rentalId);
+
+    List<TenantBillVO> findHistoryBills(String rentalId);
+
+    List<TenantListVO> findTenantList(Integer logonUserId);
+
+    List<LastMeterReadVO> findLastData(String rentalId);
+
+    PersonalCenterVO findPersonalCenterData(@Param("date") String date, @Param("logonUserId")Integer logonUserId);
+
+    List<UnpaidFeeBillsVO> findUnpaidFeeBillsVO(@Param("date") String date, @Param("logonUserId")Integer logonUserId);
 }

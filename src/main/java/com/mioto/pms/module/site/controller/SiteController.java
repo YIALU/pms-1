@@ -5,6 +5,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mioto.pms.component.BasePager;
+import com.mioto.pms.component.export.ExcelExportFactory;
 import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.site.model.Site;
 import com.mioto.pms.module.site.model.SiteDTO;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
@@ -60,13 +60,20 @@ public class SiteController {
         return ResultData.success(result);
     }
 
+    @GetMapping("/export")
+    @ApiOperation(value="导出区域信息")
+    public void export (Site site, HttpServletResponse response){
+        List<SiteDTO> list = siteService.findList(site);
+        ExcelExportFactory.create(ExcelExportFactory.EXPORT_SITE).writeExcel(list,response);
+    }
+
     /**
     * 通过id查询区域信息
     */
     @GetMapping("/{id}")
     @ApiOperation(value="通过id查询区域信息")
     public ResultData findById (@PathVariable("id")String id){
-        return ResultData.success(siteService.findByColumn("id",id));
+        return ResultData.success(siteService.findDetail(id));
     }
 
     /**
@@ -109,18 +116,13 @@ public class SiteController {
         .map(ResultData::success).orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
     }
 
-    @GetMapping("/export")
-    @ApiOperation(value = "导出区域管理信息",produces="application/octet-stream")
-    public void exportExcel(HttpServletResponse response,String... ids) throws IOException {
-        siteService.exportExcel(response,ids);
-    }
 
     @PostMapping("/import")
     @ApiOperation(value = "导入区域管理信息")
-    public ResultData importExcel(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+    public ResultData importExcel(@RequestParam("file") MultipartFile file) throws IOException {
         ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
         List<Map<String, Object>> list = reader.readAll();
-        siteService.importExcel(list);
-        return ResultData.success();
+        return Optional.of(siteService.importExcel(list)).filter(count -> count > 0)
+                .map(ResultData::success).orElseThrow(() -> new BasicException(SystemTip.IMPORT_ERROR));
     }
 }

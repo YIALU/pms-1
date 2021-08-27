@@ -1,15 +1,12 @@
 package com.mioto.pms.security.utils;
 
-import cn.hutool.core.collection.CollUtil;
 import com.mioto.pms.module.user.model.User;
 import com.mioto.pms.module.weixin.model.MiniProgramUser;
 import com.mioto.pms.security.config.JwtConfig;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
 
-import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -25,7 +22,7 @@ public class JwtTokenUtil {
      * @param
      * @return
      */
-    public static String createAccessToken(User user, Collection<? extends GrantedAuthority> authorities) {
+    public static String createAccessToken(User user, String roleId) {
         //登录成功生成token
         String token = Jwts.builder()
                 .setId(String.valueOf(user.getId()))
@@ -37,7 +34,7 @@ public class JwtTokenUtil {
                 .setIssuer("mioto")
                 .claim("logonUser",user)
                 //自定义属性 放入用户角色
-                .claim("role",authorities.stream().findFirst().get())
+                .claim("role",roleId)
                 //失效时间
                 .setExpiration(new Date(System.currentTimeMillis() + JwtConfig.expiration))
                 //签名算法和密钥

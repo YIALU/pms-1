@@ -4,10 +4,11 @@ import cn.hutool.core.util.StrUtil;
 import com.mioto.pms.module.user.dao.FunctionDao;
 import com.mioto.pms.module.user.dao.RoleDao;
 import com.mioto.pms.module.user.dao.UserDao;
-import com.mioto.pms.module.user.model.Function;
 import com.mioto.pms.module.user.model.Role;
 import com.mioto.pms.module.user.service.RoleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
@@ -59,9 +60,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDao.updateIgnoreNull(role);
     }
 
-    /**
-    * 根据列名和对应的值删除对象
-    */
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public int deleteByColumn(String column, Object value) {
         if (StrUtil.equals(column,"id")){
@@ -86,6 +85,12 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<Role> findRoleByUserId(int id) {
         return roleDao.findByUserId(id);
+    }
+    @Override
+    public boolean isExistUser(int roleId){
+        Object obj = roleDao.isExistUser(roleId);
+
+        return obj instanceof Boolean ? true : false;
     }
 
 }

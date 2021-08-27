@@ -101,4 +101,10 @@ public class RoleController {
         return Optional.of(roleService.batchDelete(ids)).filter(count -> count > 0)
         .map(ResultData::success).orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
     }
+
+    @GetMapping("/isExistUser/{roleId}")
+    @ApiOperation(value="根据角色id查询是否有用户存在")
+    public ResultData isExistUser (@PathVariable("roleId")Integer roleId){
+        return ResultData.success(roleService.isExistUser(roleId));
+    }
 }

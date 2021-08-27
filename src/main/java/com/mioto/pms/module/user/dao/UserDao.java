@@ -64,5 +64,5 @@ public interface UserDao {
 
     int delUserRoleByRoleId(Integer roleId);
 
-    List<MiniProgramUserListVO> findMiniProgramUserList();
+    List<MiniProgramUserListVO> findMiniProgramUserList(String name,String phone);
 }

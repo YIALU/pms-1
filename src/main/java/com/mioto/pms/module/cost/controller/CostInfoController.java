@@ -1,21 +1,25 @@
 package com.mioto.pms.module.cost.controller;
 
-import com.mioto.pms.module.cost.model.*;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.mioto.pms.component.BasePager;
+import com.mioto.pms.component.export.ExcelExportFactory;
+import com.mioto.pms.exception.BasicException;
+import com.mioto.pms.module.cost.model.CostDetailVO;
+import com.mioto.pms.module.cost.model.CostListDTO;
+import com.mioto.pms.module.cost.model.CostListVO;
+import com.mioto.pms.module.cost.model.EditCostDetailDTO;
 import com.mioto.pms.module.cost.service.ICostDetailService;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import com.mioto.pms.module.cost.service.ICostInfoService;
 import com.mioto.pms.result.ResultData;
 import com.mioto.pms.result.SystemTip;
-import com.mioto.pms.component.BasePager;
-import com.mioto.pms.exception.BasicException;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +40,11 @@ public class CostInfoController {
     @Resource
     private ICostDetailService costDetailService;
 
-    @GetMapping("/test")
-    @ApiOperation(value="账单生成测试")
-    public ResultData test(String roomId){
-       costInfoService.insertDetail(roomId,true);
-       return ResultData.success();
-    }
-
     @GetMapping("/pager")
     @ApiOperation(value="分页查询费用信息",response = CostListVO.class)
     public ResultData pager (BasePager basePager, CostListDTO costListDTO){
         PageHelper.startPage(basePager.getPage(), basePager.getRows(), basePager.getSortBy());
-        List<CostListVO> list = costInfoService.findCostList(costListDTO);
+        List<CostListVO> list = costInfoService.findCostList(costListDTO,false);
         PageInfo<CostListVO> pageInfo = new PageInfo<>(list);
         Map<String, Object> result = new HashMap<>(4);
         result.put("count", pageInfo.getTotal());
@@ -75,5 +72,12 @@ public class CostInfoController {
     public ResultData editSubBill (@Validated @RequestBody EditCostDetailDTO costDetail){
         int result = costDetailService.batchEdit(costDetail);
         return result > 0 ? ResultData.success() :  ResultData.result(SystemTip.INSERT_FAIL);
+    }
+
+    @GetMapping("/export")
+    @ApiOperation(value="账单导出")
+    public void export (CostListDTO costListDTO, HttpServletResponse response){
+        List<CostListVO> list = costInfoService.findCostList(costListDTO,true);
+        ExcelExportFactory.create(ExcelExportFactory.EXPORT_COST).writeExcel(list,response);
     }
 }

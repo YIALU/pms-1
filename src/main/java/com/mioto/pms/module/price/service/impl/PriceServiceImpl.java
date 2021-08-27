@@ -25,9 +25,7 @@ public class PriceServiceImpl implements PriceService {
     */
     @Override
     public List<Price> findList(Price price) {
-        if (BaseUtil.getLoginUserRoleId() == 2){
-            price.setUserId(price.getUserId());
-        }
+        price.setUserId(BaseUtil.getLogonUserId());
         return priceDao.findList(price);
     }
 
@@ -65,6 +63,11 @@ public class PriceServiceImpl implements PriceService {
         return priceDao.deleteByColumn(column,value);
     }
 
+    @Override
+    public int deleteById(String id) {
+        return priceDao.deleteById(id);
+    }
+
     /**
     * 根据主键列表批量删除
     */
@@ -76,5 +79,10 @@ public class PriceServiceImpl implements PriceService {
     @Override
     public List<Price> findByRoomId(String roomId) {
         return priceDao.findByRoomId(roomId);
+    }
+
+    @Override
+    public List<Price> findByRentalId(String rentalId) {
+        return priceDao.findByRentalId(rentalId);
     }
 }

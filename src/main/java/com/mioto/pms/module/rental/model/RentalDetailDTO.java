@@ -21,4 +21,6 @@ public class RentalDetailDTO extends RentalInfo{
     private List<TenantInfo> tenantInfoList;
     @ApiModelProperty(value = "租住附件列表")
     private List<RentalFile> rentalFileList;
+    @ApiModelProperty(value = "租住初始值列表")
+    private List<RentalInit> rentalInitList;
 }

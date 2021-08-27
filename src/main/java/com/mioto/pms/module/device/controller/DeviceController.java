@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mioto.pms.anno.FileClear;
 import com.mioto.pms.component.BasePager;
+import com.mioto.pms.component.export.ExcelExportFactory;
 import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.device.model.Device;
 import com.mioto.pms.module.device.model.DeviceDTO;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -63,9 +65,9 @@ public class DeviceController {
 
     @GetMapping("/pager")
     @ApiOperation(value = "分页查询设备信息")
-    public ResultData pager(HttpServletRequest request, Device device, BasePager basePager){
+    public ResultData pager(HttpServletRequest request, Device device,String siteId, BasePager basePager){
         PageHelper.startPage(basePager.getPage(), basePager.getRows(), basePager.getSortBy());
-       List<DeviceDTO> list= deviceService.findList(device);
+       List<DeviceDTO> list= deviceService.findList(device,siteId);
         PageInfo<DeviceDTO> pageInfo = new PageInfo<>(list);
         Map<String, Object> result = new HashMap<>(4);
         result.put("count", pageInfo.getTotal());
@@ -73,6 +75,18 @@ public class DeviceController {
         return ResultData.success(result);
     }
 
+    @GetMapping("/export")
+    @ApiOperation(value = "导出设备信息")
+    public void export(HttpServletResponse response, Device device, String siteId){
+        List<DeviceDTO> list= deviceService.findList(device,siteId);
+        ExcelExportFactory.create(ExcelExportFactory.EXPORT_DEVICE).writeExcel(list,response);
+    }
+
+    @GetMapping("/qrcode/export")
+    @ApiOperation(value = "导出设备二维码")
+    public void qrcodeExport(HttpServletResponse response, Device device, String siteId){
+        deviceService.zipQrCode(device,siteId,response);
+    }
 
     /**
      * 更新新增设备信息

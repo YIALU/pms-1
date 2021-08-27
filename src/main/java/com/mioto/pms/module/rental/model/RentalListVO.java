@@ -31,7 +31,7 @@ public class RentalListVO {
     private String phone;
     @ApiModelProperty(value = "租户姓名")
     private String tenantName;
-    @ApiModelProperty(value = "房间状态  0-空闲 1-在租")
+    @ApiModelProperty(value = "房间状态  0-空闲 1-在租 2-退租中")
     private Integer roomStatus;
     @ApiModelProperty(value = "合同时间")
     private String contractTime;

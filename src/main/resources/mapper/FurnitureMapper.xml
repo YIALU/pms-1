@@ -54,6 +54,9 @@
             <if test="siteId != null">
                 `site_id`,
             </if>
+            <if test="userId != null">
+                `user_id`,
+            </if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -77,6 +80,9 @@
             </if>
             <if test="siteId != null">
                 #{siteId},
+            </if>
+            <if test="userId != null">
+                #{userId},
             </if>
         </trim>
     </insert>
@@ -163,6 +169,9 @@
             </if>
             <if test="siteId != null">
                 AND t.`site_id` = #{siteId}
+            </if>
+            <if test="userId != null">
+                AND t.`user_id` = #{userId}
             </if>
         </trim>
     </select>

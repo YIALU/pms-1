@@ -164,7 +164,7 @@
         </trim>
     </select>
 
-    <select id="findLastDynamicCost" resultMap="costDetailBOMap">
+    <select id="findLastCost" resultMap="costDetailBOMap">
         SELECT <include refid="costInfoAliasColumns"/> FROM cost_info t
         WHERE t.rental_id = #{rentalId}
         ORDER BY t.create_time desc limit 1
@@ -211,7 +211,7 @@
         group by a.id
     </select>
     <select id="findByBillNumbers" resultType="com.mioto.pms.module.cost.model.CostInfo">
-        select a.bill_number billNumber,case when sum(a.total_amount) = sum(b.pay_amount) then 1 else 0 end payStatus
+        select a.bill_number billNumber,case when a.total_amount = sum(b.pay_amount) then 1 else 0 end payStatus
         from cost_info a
         left join pay_info b on locate(a.bill_number,b.bill_number)
         where a.bill_number in

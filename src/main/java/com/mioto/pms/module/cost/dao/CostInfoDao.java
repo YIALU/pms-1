@@ -75,7 +75,7 @@ public interface CostInfoDao{
      * 查询最近一条账单信息
      * @return
      */
-    CostDetailBO findLastDynamicCost(String rentalId);
+    CostDetailBO findLastCost(String rentalId);
 
     List<CostListVO> findCostList(CostListDTO costListDTO);
 

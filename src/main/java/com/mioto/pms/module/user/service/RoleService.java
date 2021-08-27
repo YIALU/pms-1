@@ -42,4 +42,11 @@ List<Role> findList(Role role);
     int batchDelete(int[] ids);
 
     List<Role> findRoleByUserId(int id);
+
+    /**
+     * 根据角色id查询是否有用户存在
+     * @param roleId
+     * @return
+     */
+    boolean isExistUser(int roleId);
 }

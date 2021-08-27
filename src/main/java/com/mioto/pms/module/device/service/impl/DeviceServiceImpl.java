@@ -1,31 +1,20 @@
 package com.mioto.pms.module.device.service.impl;
 
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.extra.qrcode.QrCodeUtil;
-import cn.hutool.json.JSONUtil;
 import com.mioto.pms.module.device.dao.DeviceDao;
 import com.mioto.pms.module.device.model.Device;
 import com.mioto.pms.module.device.model.DeviceDTO;
 import com.mioto.pms.module.device.service.IDeviceService;
 import com.mioto.pms.module.file.FileHelper;
-import com.mioto.pms.module.file.model.FileInfo;
-import com.mioto.pms.module.file.service.FileService;
 import com.mioto.pms.module.room.model.RoomDeviceRelation;
-import com.mioto.pms.result.ResultData;
+import com.mioto.pms.utils.BaseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author lizhicai
@@ -45,6 +34,7 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public List<Device> find(Device device) {
+        device.setUserId(BaseUtil.getLogonUserId());
         return deviceDao.find(device);
     }
 
@@ -52,16 +42,18 @@ public class DeviceServiceImpl implements IDeviceService {
     @Override
     public int insert(Device device) throws IOException {
         //生成设备二维码
-        fileHelper.createCode(device);
+        device.setUserId(BaseUtil.getLoginUser().getId());
         int add = deviceDao.add(device);
+        fileHelper.createCode(device);
         return add;
     }
 
 
 
     @Override
-    public List<DeviceDTO> findList(Device device) {
-        return deviceDao.findList(device);
+    public List<DeviceDTO> findList(Device device,String siteId) {
+        device.setUserId(BaseUtil.getLogonUserId());
+        return deviceDao.findList(device,siteId);
     }
 
     /**
@@ -116,5 +108,11 @@ public class DeviceServiceImpl implements IDeviceService {
     @Override
     public int clearRoomRelation(String roomId) {
         return deviceDao.clearRoomRelation(roomId);
+    }
+
+    @Override
+    public void zipQrCode(Device device, String siteId, HttpServletResponse response) {
+        File file = fileHelper.zipQrCode(findList(device,siteId));
+        fileHelper.downloadZip(response,file);
     }
 }

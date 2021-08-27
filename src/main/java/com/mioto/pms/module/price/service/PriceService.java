@@ -10,10 +10,10 @@ import java.util.List;
 * date 2021-04-16 14:51:24
 */
 public interface PriceService {
-/**
-* 根据条件查询列表
-*/
-List<Price> findList(Price price);
+    /**
+    * 根据条件查询列表
+    */
+    List<Price> findList(Price price);
 
     /**
     * 根据列名和对应的值查询对象
@@ -35,6 +35,8 @@ List<Price> findList(Price price);
     */
     int deleteByColumn(String column, String value);
 
+    int deleteById(String id);
+
     /**
     * 根据主键列表批量删除
     */
@@ -46,5 +48,12 @@ List<Price> findList(Price price);
      * @return
      */
     List<Price> findByRoomId(String roomId);
+    /**
+     * 根据租住id查询收费策略列表
+     * @param rentalId
+     * @return
+     */
+    List<Price> findByRentalId(String rentalId);
+
 
 }

@@ -4,6 +4,7 @@ import com.mioto.pms.module.device.model.Device;
 import com.mioto.pms.module.device.model.DeviceDTO;
 import com.mioto.pms.module.room.model.RoomDeviceRelation;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,7 +21,7 @@ public interface IDeviceService {
 
     int insert(Device device) throws IOException;
 
-    List<DeviceDTO> findList(Device device);
+    List<DeviceDTO> findList(Device device,String siteId);
 
     /**
      * 修改对象,忽略空值
@@ -51,4 +52,5 @@ public interface IDeviceService {
      */
     int clearRoomRelation(String roomId);
 
+    void zipQrCode(Device device, String siteId, HttpServletResponse response);
 }

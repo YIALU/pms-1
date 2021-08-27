@@ -113,4 +113,8 @@
     <select id="findByUserId" resultMap="roleResultMap">
         select <include refid="roleAliasColumns"/> from role t left join user_role u on t.id = u.role_id where u.user_id=#{id}
     </select>
+    <select id="isExistUser" resultType="java.lang.Boolean">
+        select 1 from user a LEFT JOIN user_role b on a.id = b.user_id
+        where b.role_id =#{roleId} limit 1
+    </select>
 </mapper>

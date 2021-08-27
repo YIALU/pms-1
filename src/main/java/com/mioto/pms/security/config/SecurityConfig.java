@@ -1,7 +1,6 @@
 package com.mioto.pms.security.config;
 
 
-
 import com.mioto.pms.security.filter.BasicAuthenticationProcessingFilter;
 import com.mioto.pms.security.filter.JwtAuthenticationTokenFilter;
 import com.mioto.pms.security.handler.UserAuthAccessDeniedHandler;
@@ -15,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -76,10 +74,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 // 允许跨域访问
                 .cors();
+                //.and()
+                //.rememberMe();
         // 基于Token不需要session
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 禁用缓存
-        http.headers().cacheControl();
+        //http.headers().cacheControl();
         // 添加JWT过滤器
         http.addFilter(new JwtAuthenticationTokenFilter(authenticationManager()));
         http.addFilterBefore(basicAuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter.class);

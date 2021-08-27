@@ -30,6 +30,12 @@
         <collection property="priceList" column="t_id" select="com.mioto.pms.module.room.dao.RoomPricingStrategyDao.findStrategysByRoomId"/>
     </resultMap>
 
+    <resultMap id="wxFreeRoomVOMap" type="com.mioto.pms.module.room.model.WxFreeRoomVO">
+        <result property="roomId" column="roomId"/>
+        <association property="siteBO" column="site_id" select="com.mioto.pms.module.site.dao.SiteDao.findSiteBOBySiteId"/>
+        <association property="rent" column="roomId" select="com.mioto.pms.module.price.dao.PriceDao.findRentFeeByRoomId"/>
+    </resultMap>
+
     <sql id="roomAliasColumns">
         t.`id` AS t_id,
         t.`room_name` AS t_room_name,
@@ -187,11 +193,14 @@
         left join site s on t.site_id = s.id
         left join personal p on t.user_id =p.user_id
         <trim prefix="WHERE" prefixOverrides="AND | OR">
-            <if test="userId != null">
-                AND t.`user_id` = #{userId}
+            <if test="logonUserId != null">
+                AND t.`user_id` = #{logonUserId}
             </if>
             <if test="siteId != null">
                 AND t.`site_id` = #{siteId}
+            </if>
+            <if test="deviceId != null">
+                AND (d.device_id = #{deviceId} or d1.device_id = #{deviceId})
             </if>
         </trim>
         order by t.create_time desc
@@ -207,5 +216,26 @@
         LEFT JOIN device_detail c on a.id = c.room_id and c.device_type_id ='caa918dfcdc14283bb009368c811ef16'
         LEFT JOIN device_detail d on a.id = d.room_id and d.device_type_id ='1f579c18f2ca4f5a90fff4929eb4645f'
         where a.id =#{roomId}
+    </select>
+
+    <select id="findFreeRooms" resultMap="wxFreeRoomVOMap">
+        select a.room_name roomName,a.style roomStyle,a.id roomId,a.site_id from room a
+        where a.id not in (select b.room_id from rental_info b where b.`status` = 1)
+        <if test="address != null and address != ''">
+            and locate (#{address},a.room_name)
+        </if>
+    </select>
+    <select id="findContractPrices" resultType="com.mioto.pms.module.weixin.model.ContractPriceVO">
+        select c.`name`,c.unit_price amount from room a
+        left join room_pricing_strategy b on a.id = b.room_id
+        right join price c on b.pricing_strategy_id = c.id
+        where a.id = #{roomId}
+    </select>
+
+    <select id="findCostTypes" resultType="java.lang.String">
+        select c.type from room a
+        left join room_pricing_strategy b on a.id = b.room_id
+        right join price c on b.pricing_strategy_id = c.id
+        where a.id = #{roomId}
     </select>
 </mapper>

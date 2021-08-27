@@ -1,6 +1,7 @@
 package com.mioto.pms.module.cost.service;
 
 import com.mioto.pms.module.cost.model.*;
+import com.mioto.pms.module.weixin.model.ManualMeterReadDTO;
 
 import java.util.List;
 
@@ -71,7 +72,7 @@ public interface ICostInfoService{
      */
     int batchDelete(Integer[] ids);
 
-    List<CostListVO> findCostList(CostListDTO costListDTO);
+    List<CostListVO> findCostList(CostListDTO costListDTO,boolean isALl);
 
     void insertDetail(String roomId,boolean firstInsert);
 
@@ -103,4 +104,10 @@ public interface ICostInfoService{
      * @return
      */
     int updateAmount(String id);
+
+    /**
+     * 手动抄表
+     * @param meterReadDTOList
+     */
+    int manualMeterRead(ManualMeterReadDTO meterReadDTOList);
 }

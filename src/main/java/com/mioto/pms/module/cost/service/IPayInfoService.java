@@ -14,6 +14,10 @@ import java.util.List;
  */
 public interface IPayInfoService{
     /**
+     * 微信支付
+     */
+    int PAY_TYPE_WX = 1;
+    /**
      * 现金支付
      */
     int PAY_TYPE_CASH = 2;
@@ -82,6 +86,13 @@ public interface IPayInfoService{
      * @return
      */
     int miniProgramCashPay(String[] billNumbers);
+
+    /**
+     * 小程序支付
+     * @param billNumber
+     * @return
+     */
+    int miniProgramPay(String billNumber);
 
     /**
      * web现金支付

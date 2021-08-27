@@ -32,10 +32,11 @@ public class UserLoginSuccessHandler implements AuthenticationSuccessHandler {
         User user = (User) authentication.getPrincipal();
         JSONObject logonUser = JSONUtil.parseObj(user,false);
         logonUser.remove("password");
+        String roleId = authentication.getAuthorities().stream().findFirst().get().toString();
         JSONObject result = JSONUtil.createObj()
-                .set("token", JwtTokenUtil.createAccessToken(user,authentication.getAuthorities()))
+                .set("token", JwtTokenUtil.createAccessToken(user,roleId))
                 .set("logonUser",logonUser)
-                .set("role",authentication.getAuthorities().stream().findFirst().get().toString());
+                .set("role",roleId);
         ResultUtil.responseJson(httpServletResponse, ResultData.success(result));
     }
 }

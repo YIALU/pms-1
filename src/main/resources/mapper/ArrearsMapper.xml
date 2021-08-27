@@ -113,7 +113,7 @@
                 AND t.id = #{id}
             </if>
             <if test="name != null">
-                AND t.`name` = #{name}
+                AND locate(#{name},t.`name`)
             </if>
             <if test="date != null">
                 AND t.`date` = #{date}

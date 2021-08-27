@@ -4,19 +4,23 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mioto.pms.anno.MeterReadingAnno;
 import com.mioto.pms.component.BasePager;
+import com.mioto.pms.component.export.ExcelExportFactory;
 import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.meter.MeterReadType;
-import com.mioto.pms.module.room.model.Room;
-import com.mioto.pms.module.room.model.RoomListVO;
 import com.mioto.pms.module.room.model.RoomDetailDTO;
+import com.mioto.pms.module.room.model.RoomListVO;
+import com.mioto.pms.module.room.model.WxFreeRoomVO;
 import com.mioto.pms.module.room.service.RoomService;
 import com.mioto.pms.result.ResultData;
 import com.mioto.pms.result.SystemTip;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,23 +37,23 @@ public class RoomController {
     @Resource
     private RoomService roomService ;
 
-    /**
-    * 查询开户配表
-    */
+
     @GetMapping
     @ApiOperation(value="查询开户配表")
-    public ResultData list (Room room){
-        return ResultData.success(roomService.findList(room));
+    public ResultData list (Integer siteId,String deviceId){
+        return ResultData.success(roomService.findList(siteId,deviceId));
     }
 
-    /**
-    * 分页查询开户配表
-    */
+
     @GetMapping("/pager")
     @ApiOperation(value="分页查询开户配表",response = RoomListVO.class)
-    public ResultData pager (Room room, BasePager basePager){
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="siteId",value = "区域id",dataType="Integer", paramType = "query"),
+            @ApiImplicitParam(name="deviceId",value = "水电表id",dataType="string", paramType = "query")
+    })
+    public ResultData pager (Integer siteId,String deviceId, BasePager basePager){
         PageHelper.startPage(basePager.getPage(), basePager.getRows(), basePager.getSortBy());
-        List<RoomListVO> list = roomService.findList(room);
+        List<RoomListVO> list = roomService.findList(siteId,deviceId);
         PageInfo<RoomListVO> pageInfo = new PageInfo<>(list);
         Map<String, Object> result = new HashMap<>(4);
         result.put("count", pageInfo.getTotal());
@@ -57,13 +61,28 @@ public class RoomController {
         return ResultData.success(result);
     }
 
-    /**
-    * 通过id查询开户配表
-    */
+    @GetMapping("/export")
+    @ApiOperation(value="导出开户配表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="siteId",value = "区域id",dataType="Integer", paramType = "query"),
+            @ApiImplicitParam(name="deviceId",value = "水电表id",dataType="string", paramType = "query")
+    })
+    public void export (Integer siteId, String deviceId, HttpServletResponse response){
+        List<RoomListVO> list = roomService.findList(siteId,deviceId);
+        ExcelExportFactory.create(ExcelExportFactory.EXPORT_ACCOUNT).writeExcel(list,response);
+    }
+
     @GetMapping("/{id}")
     @ApiOperation(value="通过id查询开户配表")
     public ResultData findById (@PathVariable("id")String id){
         return ResultData.success(roomService.findDetailById(id));
+    }
+
+
+    @GetMapping("/dynamic/costTypes")
+    @ApiOperation(value="通过房屋id查询按使用量计费的收费类型列表")
+    public ResultData findDynamicCostTypes (String roomId){
+        return ResultData.success(roomService.findDynamicCostTypes(roomId));
     }
 
     /**
@@ -102,5 +121,16 @@ public class RoomController {
     public ResultData batchDelete (String... ids){
         return Optional.of(roomService.batchDelete(ids)).filter(count -> count > 0)
         .map(ResultData::success).orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
+    }
+
+    @ApiOperation(value = "小程序获取空闲房源",response = WxFreeRoomVO.class)
+    @GetMapping("/free")
+    public ResultData getFreeRooms(BasePager basePager,String address){
+        PageHelper.startPage(basePager.getPage(), basePager.getRows(), basePager.getSortBy());
+        PageInfo<WxFreeRoomVO> pageInfo = new PageInfo<>(roomService.findFreeRooms(address));
+        Map<String, Object> result = new HashMap<>(2);
+        result.put("count", pageInfo.getTotal());
+        result.put("list", pageInfo.getList());
+        return ResultData.success(result);
     }
 }

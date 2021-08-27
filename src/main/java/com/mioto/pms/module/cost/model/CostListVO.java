@@ -1,5 +1,6 @@
 package com.mioto.pms.module.cost.model;
 
+import cn.hutool.core.collection.CollUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -31,4 +32,11 @@ public class CostListVO {
     private Integer isSend;
     @ApiModelProperty(value = "子账单列表")
     private List<CostDetailListVO> costDetailListVOList;
+
+    public List<CostDetailListVO> getCostDetailListVOList() {
+        if (CollUtil.isNotEmpty(costDetailListVOList)){
+            costDetailListVOList.sort(CostDetailListVO::compareTo);
+        }
+        return costDetailListVOList;
+    }
 }

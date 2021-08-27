@@ -1,11 +1,12 @@
 package com.mioto.pms.module.cost.model;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
 /**
  * 费用明细实体
  * @author qinxj
@@ -52,4 +53,8 @@ public class CostDetail implements Serializable{
 
     @ApiModelProperty(value = "账单类型 1-系统生成  2-手动添加")
     private Integer type;
+
+    @ApiModelProperty(value = "支付状态 0-未支付 1-已支付")
+    private Integer payStatus;
+
 }

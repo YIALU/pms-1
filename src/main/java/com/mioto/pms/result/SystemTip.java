@@ -40,9 +40,19 @@ public enum SystemTip {
 
     BILL_NUMBER_NOT_EMPTY("14000","账单编号不能为空"),
     BILL_NUMBER_NOT_EXIST("14001","账单编号不存在"),
-    BILL_NUMBER_SEND_FAIL("14002","账单发送失败"),;
+    BILL_NUMBER_SEND_FAIL("14002","账单发送失败"),
 
+    PRICE_METER_EMPTY("15000","收费策略和抄表策略不能为空"),
+    METER_READ_ERROR("15001","每月只能抄表一次"),
 
+    ZIP_DEVICE_EMPTY("16000","设备为空,打包失败"),
+    EXPORT_ERROR("16001","暂不支持的导出类型"),
+
+    ADDRESS_EMPTY("17000","省、市、区、地址不能为空"),
+    PROVINCE_NOT_EXIST("17001","省不存在"),
+    CITY_NOT_EXIST("17002","市不存在"),
+    DISTRICT_NOT_EXIST("17003","区不存在"),
+    PROVINCE_CITY_RELATION_ERROR("17004","省、市、区关系错误");
 
     private String code;
     private String desc;

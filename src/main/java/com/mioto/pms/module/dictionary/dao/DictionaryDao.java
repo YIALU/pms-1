@@ -56,4 +56,6 @@ public interface DictionaryDao {
     int batchDelete(String[] ids);
 
     Dictionary findDictionary(Map<String, Object> map);
+
+    List<Dictionary> findAllAddress();
 }

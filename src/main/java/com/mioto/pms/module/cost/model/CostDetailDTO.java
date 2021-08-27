@@ -27,6 +27,8 @@ public class CostDetailDTO {
     private Date endDate;
     @ApiModelProperty(value = "总金额")
     private Double amount;
+    @ApiModelProperty(value = "单价")
+    private Double unit;
     @ApiModelProperty(value = "修改类型 1-新增 2-修改 3-删除 如果是删除只需传id和editType字段",required = true)
     private Integer editType;
 }

@@ -23,4 +23,6 @@ public class RentalDetailVO extends RentalInfo{
     @ApiModelProperty(value = "附件列表")
     private List<RentalFileVO> rentalFileList;
 
+    @ApiModelProperty(value = "租住初始数据列表")
+    private List<RentalInit> rentalInitList;
 }

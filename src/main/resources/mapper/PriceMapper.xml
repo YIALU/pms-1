@@ -108,7 +108,7 @@
 
     <!--删除-->
     <delete id="deleteByColumn">
-        delete from price  where ${column} = #{value}
+        delete from price  where ${column} = #{value};
     </delete>
 
     <!--批量删除-->
@@ -118,14 +118,18 @@
             #{item}
         </foreach>
     </delete>
+    <delete id="deleteById">
+        delete from price where id = #{id};
+        delete from room_pricing_strategy where pricing_strategy_id = #{id}
+    </delete>
 
 
     <select id="findByColumn" resultMap="priceResultMap">
-        SELECT <include refid="priceAliasColumns"/> FROM price t left join user u on t.`user_id` = u.id where t.${column} = #{value}
+        SELECT <include refid="priceAliasColumns"/> FROM price t where t.${column} = #{value}
     </select>
 
     <select id="findList" resultMap="priceResultMap">
-        SELECT <include refid="priceAliasColumns"/> FROM price t left join user u on t.`user_id` = u.id
+        SELECT <include refid="priceAliasColumns"/> FROM price t
         <trim prefix="WHERE" prefixOverrides="AND | OR">
             <if test="id != null and id != ''">
                 AND t.id = #{id}
@@ -134,7 +138,7 @@
                 AND t.`number` = #{number}
             </if>
             <if test="name != null">
-                AND t.`name` = #{name}
+                AND locate(#{name},t.`name`)
             </if>
             <if test="type != null">
                 AND t.`type` = #{type}
@@ -163,5 +167,12 @@
         select <include refid="priceAliasColumns"/> from price t
         LEFT JOIN room_pricing_strategy a on a.pricing_strategy_id = t.id
         where a.room_id = #{roomId}
+    </select>
+    <select id="findByRentalId" resultMap="priceResultMap">
+        select <include refid="priceAliasColumns"/> from price t
+        LEFT JOIN room_pricing_strategy a on a.pricing_strategy_id = t.id
+        LEFT JOIN room c on c.id = a.room_id
+        left join rental_info b on b.room_id = c.id
+        where b.id = #{rentalId}
     </select>
 </mapper>

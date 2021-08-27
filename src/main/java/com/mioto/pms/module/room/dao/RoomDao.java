@@ -1,6 +1,7 @@
 package com.mioto.pms.module.room.dao;
 
 import com.mioto.pms.module.room.model.*;
+import com.mioto.pms.module.weixin.model.ContractPriceVO;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +18,7 @@ public interface RoomDao {
     * 根据条件查询列表
     * @return
     */
-    List<RoomListVO> findList(Room room);
+    List<RoomListVO> findList(@Param("siteId") Integer siteId,@Param("deviceId") String deviceId,@Param("logonUserId") Integer logonUserId);
 
     /**
     * 根据列名和对应的值查询对象
@@ -68,4 +69,10 @@ public interface RoomDao {
      * @return
      */
     CostRoomVO findCostRoom(String roomId);
+
+    List<WxFreeRoomVO> findFreeRooms(String address);
+
+    List<ContractPriceVO> findContractPrices(String roomId);
+
+    List<String> findCostTypes(String roomId);
 }

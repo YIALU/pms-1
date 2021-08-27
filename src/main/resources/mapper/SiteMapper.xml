@@ -2,14 +2,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="com.mioto.pms.module.site.dao.SiteDao">
-    <resultMap id="siteResultMap" type="com.mioto.pms.module.site.model.Site">
-        <id property="id" column="t_id" jdbcType="VARCHAR"/>
-        <result property="number" column="t_number"/>
-        <result property="districtId" column="t_district_id"/>
-        <result property="address" column="t_address"/>
-        <result property="userId" column="t_userId"/>
-    </resultMap>
+        <resultMap id="siteResultMap" type="com.mioto.pms.module.site.model.Site">
+            <id property="id" column="t_id" jdbcType="VARCHAR"/>
+            <result property="number" column="t_number"/>
+            <result property="districtId" column="t_district_id"/>
+            <result property="address" column="t_address"/>
+            <result property="userId" column="t_userId"/>
+        </resultMap>
+        <resultMap id="siteVOMap" type="com.mioto.pms.module.site.model.SiteVO" extends="siteResultMap">
 
+        </resultMap>
 
         <resultMap id="siteDTOResultMap" type="com.mioto.pms.module.site.model.SiteDTO">
             <id property="id" column="t_id" jdbcType="VARCHAR"/>
@@ -23,12 +25,10 @@
         </resultMap>
 
     <resultMap id="siteExcelResultMap" type="com.mioto.pms.module.site.model.SiteExcel">
-        <result property="number" column="t_number"/>
         <result property="address" column="t_address"/>
         <result property="provinceName" column="t_provinceName"/>
         <result property="cityName" column="t_cityName"/>
         <result property="districtName" column="t_districtName"/>
-        <result property="username" column="t_username"/>
     </resultMap>
 
     <sql id="siteAliasColumns">
@@ -96,15 +96,13 @@
         </trim>
     </insert>
 
-    <insert id="insertExcel">
-        insert into site (`number`,`district_id`,`address`,`user_id`)
-        values
-        <foreach collection="list" item="item"  separator=",">
-            ( #{item.number},
-            (select d.id from dictionary d left join dictionary d1 on d.pid =d1.id  where d.name= #{item.districtName} and d1.name=#{item.cityName})  ,
-      #{item.address},(select u.id from user u where u.username =#{username}))
+    <insert id="insertBatch">
+        insert into site (`district_id`,`address`,`user_id`) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.districtId},#{item.address},#{item.userId})
         </foreach>
     </insert>
+
 
     <update id="updateIgnoreNull">
         update site
@@ -156,13 +154,13 @@
                 AND t.`number` = #{number}
             </if>
             <if test="districtId != null">
-                AND d.`pid` = #{districtId}
+                AND (d1.`id` = #{districtId} or d2.id = #{districtId} or d.id = #{districtId})
             </if>
             <if test="address != null">
                 AND locate(#{address},t.`address`)
             </if>
             <if test="userId != null">
-                `user_id` = #{userId},
+                AND t.`user_id` = #{userId}
             </if>
         </trim>
     </select>
@@ -190,5 +188,20 @@
         left join dictionary d on c.pid = d.id
         left join dictionary e on d.pid = e.id
         where b.id = #{id}
+    </select>
+
+    <select id="findSiteBOBySiteId" resultType="com.mioto.pms.module.site.model.SiteBO">
+        select CONCAT(e.name, d.name, c.name) as area, b.address as siteName
+        from site b
+        left join dictionary c on c.id = b.district_id
+        left join dictionary d on c.pid = d.id
+        left join dictionary e on d.pid = e.id
+        where b.id = #{id}
+    </select>
+
+    <select id="findDetail" resultMap="siteVOMap">
+        SELECT <include refid="siteAliasColumns"/>,a.level FROM site t
+        left join dictionary a on t.district_id = a.id
+        where t.id = #{id}
     </select>
 </mapper>

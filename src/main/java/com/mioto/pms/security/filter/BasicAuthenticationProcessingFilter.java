@@ -42,6 +42,10 @@ public class BasicAuthenticationProcessingFilter extends AbstractAuthenticationP
     private RoleService roleService;
     @Resource
     private UserService userService;
+   /* @Autowired
+    private DataSource dataSource;
+    @Autowired
+    private BaseUserDetailsService baseUserDetailsService;*/
     @Override
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
         String username = httpServletRequest.getParameter("username");
@@ -83,4 +87,21 @@ public class BasicAuthenticationProcessingFilter extends AbstractAuthenticationP
     public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
         super.setAuthenticationFailureHandler(failureHandler);
     }
+
+  /*  @Autowired
+    @Override
+    public void setRememberMeServices(RememberMeServices rememberMeServices) {
+        super.setRememberMeServices(rememberMeServices);
+    }
+
+    @Bean
+    public RememberMeServices rememberMeServices(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        PersistentTokenBasedRememberMeServices rememberMeServices =
+                new PersistentTokenBasedRememberMeServices("INTERNAL_SECRET_KEY",baseUserDetailsService,jdbcTokenRepository);
+        rememberMeServices.setParameter("remember-me");
+        return rememberMeServices;
+    }*/
+
 }

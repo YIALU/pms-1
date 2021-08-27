@@ -9,6 +9,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -18,6 +19,7 @@ import javax.annotation.Resource;
  * @author admin
  * @date 2021-07-21 16:06
  */
+@Async
 @Aspect
 @Component
 public class GenerateCostAspect {

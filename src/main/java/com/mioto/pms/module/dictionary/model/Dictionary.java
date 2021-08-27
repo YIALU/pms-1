@@ -63,4 +63,7 @@ public class Dictionary implements Serializable {
     private String pid;
 
 
+    public Dictionary get(){
+        return this;
+    }
 }

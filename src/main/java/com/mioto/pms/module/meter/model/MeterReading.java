@@ -38,15 +38,10 @@ public class MeterReading implements Serializable {
     @ApiModelProperty(value = "策略类型")
     private String type;
 
-    /**
-    * 抄表日期
-    */
+
     @ApiModelProperty(value = "抄表日期")
     private String date;
 
-    /**
-    * 抄表时间
-    */
     @ApiModelProperty(value = "抄表时间")
     private String time;
 

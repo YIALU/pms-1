@@ -86,7 +86,7 @@ public class PriceController {
     @DeleteMapping("/{id}")
     @ApiOperation(value="删除费用策略")
     public ResultData delete (@PathVariable("id")String id){
-        return Optional.of(priceService.deleteByColumn("id",id)).filter(count -> count > 0)
+        return Optional.of(priceService.deleteById(id)).filter(count -> count > 0)
         .map(ResultData::success).orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
     }
 

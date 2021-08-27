@@ -1,10 +1,7 @@
 package com.mioto.pms.module.room.service;
 
 
-import com.mioto.pms.module.room.model.Room;
-import com.mioto.pms.module.room.model.RoomDetailDTO;
-import com.mioto.pms.module.room.model.RoomDetailVO;
-import com.mioto.pms.module.room.model.RoomListVO;
+import com.mioto.pms.module.room.model.*;
 
 import java.util.List;
 
@@ -16,7 +13,7 @@ public interface RoomService {
     /**
     * 根据条件查询列表
     */
-    List<RoomListVO> findList(Room room);
+    List<RoomListVO> findList(Integer siteId,String deviceId);
 
     /**
     * 根据列名和对应的值查询对象
@@ -49,4 +46,8 @@ public interface RoomService {
      * @return
      */
     RoomDetailVO findDetailById(String roomId);
+
+    List<WxFreeRoomVO> findFreeRooms(String address);
+
+    List<String> findDynamicCostTypes(String roomId);
 }

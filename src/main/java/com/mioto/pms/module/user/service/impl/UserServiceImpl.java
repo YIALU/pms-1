@@ -1,6 +1,5 @@
 package com.mioto.pms.module.user.service.impl;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mioto.pms.module.user.dao.UserDao;
@@ -105,7 +104,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<MiniProgramUserListVO> findMiniProgramUserList() {
-        return userDao.findMiniProgramUserList();
+    public List<MiniProgramUserListVO> findMiniProgramUserList(String name,String phone) {
+        return userDao.findMiniProgramUserList(name,phone);
     }
 }

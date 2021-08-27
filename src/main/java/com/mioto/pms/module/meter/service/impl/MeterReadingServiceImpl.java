@@ -25,9 +25,7 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     */
     @Override
     public List<MeterReading> findList(MeterReading meterReading) {
-        if (BaseUtil.getLoginUserRoleId() == 2){
-            meterReading.setUserId(meterReading.getUserId());
-        }
+        meterReading.setUserId(BaseUtil.getLogonUserId());
         return meterReadingDao.findList(meterReading);
     }
 

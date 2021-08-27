@@ -1,5 +1,6 @@
 package com.mioto.pms.module.cost.model;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +16,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ApiModel(value = "子账单列表对象")
-public class CostDetailListVO {
+public class CostDetailListVO implements Comparable<CostDetailListVO>{
     @ApiModelProperty(value = "子账单id")
     private Integer id;
     @ApiModelProperty(value = "子账单编号")
@@ -42,4 +43,12 @@ public class CostDetailListVO {
     private int payStatus;
     @ApiModelProperty(value = "账单类型 1-系统生成  2-手动添加")
     private Integer type;
+
+    @Override
+    public int compareTo(CostDetailListVO o) {
+        if (Integer.parseInt(childBillNumber.substring(childBillNumber.indexOf(StrUtil.DASHED))) > Integer.parseInt(o.getChildBillNumber().substring(o.getChildBillNumber().indexOf(StrUtil.DASHED)))){
+            return -1;
+        }
+        return 1;
+    }
 }

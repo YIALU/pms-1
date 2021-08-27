@@ -76,4 +76,6 @@ public interface RentalInfoDao{
     List<RentalInfo> findByRoomIdAndStatus(@Param("roomId")String roomId, @Param("status")int status);
 
     CancellationVO findCancellation(String rentalId);
+
+    WxCancellationVO findWxCancellation(String rentalId);
 }

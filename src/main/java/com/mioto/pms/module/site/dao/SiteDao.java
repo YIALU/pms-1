@@ -1,8 +1,6 @@
 package com.mioto.pms.module.site.dao;
 
-import com.mioto.pms.module.site.model.Site;
-import com.mioto.pms.module.site.model.SiteDTO;
-import com.mioto.pms.module.site.model.SiteExcel;
+import com.mioto.pms.module.site.model.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -60,10 +58,10 @@ public interface SiteDao {
 
     /**
      * excel导入新增
-     * @param list1
+     * @param list
      * @return
      */
-    int insertExcel(List<SiteExcel> list1);
+    int insertBatch(List<Site> list);
 
     /**
      * 根据id查询区域地址
@@ -79,4 +77,7 @@ public interface SiteDao {
      */
     String findAddressDetailById(Integer id);
 
+    SiteBO findSiteBOBySiteId(Integer SiteId);
+
+    SiteVO findDetail(String id);
 }

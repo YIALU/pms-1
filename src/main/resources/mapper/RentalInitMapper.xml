@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mioto.pms.module.rental.dao.RentalInitDao">
+
+
+    <insert id="insert">
+        insert into rental_init (rental_id,cost_type,init_val,create_time) values
+        <foreach collection="rentalInitList" item="item" separator=",">
+            (#{item.rentalId},#{item.costType},#{item.initVal},#{item.createTime})
+        </foreach>
+    </insert>
+    <update id="update">
+        <foreach collection="rentalInitList" item="item">
+           update rental_init set init_val = #{item.initVal} where id = #{item.id}
+        </foreach>
+    </update>
+
+    <select id="findList" resultType="com.mioto.pms.module.rental.model.RentalInit">
+        select id, rental_id rentalId,cost_type costType,init_val initVal,create_time createTime
+        from rental_init where rental_id = #{rentalId}
+        order by create_time
+    </select>
+
+    <select id="findInitVal" resultType="java.lang.Double">
+        select init_val from rental_init where rental_id = #{rentalId} and cost_type = #{costType}
+    </select>
+</mapper>

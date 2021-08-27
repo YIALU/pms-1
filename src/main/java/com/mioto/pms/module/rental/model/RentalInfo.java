@@ -1,11 +1,12 @@
 package com.mioto.pms.module.rental.model;
 
-import java.io.Serializable;
-import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
+import java.util.Date;
 /**
  * 房屋出租信息实体
  * @author qinxj
@@ -45,24 +46,9 @@ public class RentalInfo implements Serializable{
     @ApiModelProperty(value = "押金")
     private String deposit;
     /**
-     * 水表初始值
-     */
-    @ApiModelProperty(value = "水表初始值")
-    private String waterMeterVal;
-    /**
-     * 电表初始值
-     */
-    @ApiModelProperty(value = "电表初始值")
-    private String electricityMeterVal;
-    /**
-     * 煤气初始值
-     */
-    @ApiModelProperty(value = "煤气初始值")
-    private String coalGasVal;
-    /**
      * 出租信息状态 1-正在出租 2-历史出租纪录
      */
-    @ApiModelProperty(value = "出租信息状态 1-正在出租 2-历史出租纪录")
+    @ApiModelProperty(value = "出租信息状态 1-正在出租 2-退租中 3-历史出租纪录")
     private Integer status;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

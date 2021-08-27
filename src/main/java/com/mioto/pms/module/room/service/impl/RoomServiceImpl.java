@@ -3,22 +3,19 @@ package com.mioto.pms.module.room.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
-import com.mioto.pms.anno.MeterReadingAnno;
 import com.mioto.pms.module.device.service.IDeviceService;
 import com.mioto.pms.module.furniture.service.FurnitureService;
-import com.mioto.pms.module.meter.MeterReadType;
+import com.mioto.pms.module.price.PricingStrategyEnum;
 import com.mioto.pms.module.room.dao.RoomDao;
 import com.mioto.pms.module.room.dao.RoomPricingStrategyDao;
-import com.mioto.pms.module.room.model.Room;
-import com.mioto.pms.module.room.model.RoomDetailDTO;
-import com.mioto.pms.module.room.model.RoomDetailVO;
-import com.mioto.pms.module.room.model.RoomListVO;
+import com.mioto.pms.module.room.model.*;
 import com.mioto.pms.module.room.service.RoomService;
 import com.mioto.pms.utils.BaseUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -42,11 +39,8 @@ public class RoomServiceImpl implements RoomService {
     * 根据条件查询列表
     */
     @Override
-    public List<RoomListVO> findList(Room room) {
-        if (BaseUtil.getLoginUserRoleId() == 2){
-            room.setUserId(BaseUtil.getLoginUser().getId());
-        }
-        return roomDao.findList(room);
+    public List<RoomListVO> findList(Integer siteId,String deviceId) {
+        return roomDao.findList(siteId,deviceId,BaseUtil.getLogonUserId());
     }
 
     /**
@@ -126,5 +120,25 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomDetailVO findDetailById(String roomId) {
         return roomDao.findDetailById(roomId);
+    }
+
+    @Override
+    public List<WxFreeRoomVO> findFreeRooms(String address) {
+        return roomDao.findFreeRooms(address);
+    }
+
+    @Override
+    public List<String> findDynamicCostTypes(String roomId) {
+        List<String> costTypeList = roomDao.findCostTypes(roomId);
+        if (CollUtil.isNotEmpty(costTypeList)) {
+            List<String> list = new ArrayList<>(costTypeList.size());
+            for (String s : costTypeList) {
+                if (PricingStrategyEnum.getInstance(s).getType() == 1) {
+                    list.add(s);
+                }
+            }
+            return list;
+        }
+        return costTypeList;
     }
 }

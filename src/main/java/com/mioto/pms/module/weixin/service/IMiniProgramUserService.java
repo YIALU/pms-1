@@ -1,6 +1,7 @@
 package com.mioto.pms.module.weixin.service;
 
-import com.mioto.pms.module.weixin.model.MiniProgramUser;
+import com.mioto.pms.module.weixin.model.*;
+
 import java.util.List;
 
 /**
@@ -70,4 +71,47 @@ public interface IMiniProgramUserService{
     int batchDelete(Integer[] ids);
 
     MiniProgramUser bindPhone(String phone,String openId,String nickName);
+
+
+    List<TenantHomeVO> findHomeData();
+
+    /**
+     * 查询正在出租房屋未缴费账单列表
+     * @return
+     */
+    List<UnpaidFeesVO> findUnpaidFees(String rentalId);
+
+    /**
+     * 查询合同信息
+     * @param rentalId
+     * @return
+     */
+    List<ContractInfoVO> findContractInfo(String rentalId);
+
+    /**
+     * 查询历史账单列表
+     * @param rentalId
+     * @return
+     */
+    List<TenantBillVO> findHistoryBills(String rentalId);
+
+    /**
+     * 查询房东下面的租户列表
+     * @return
+     */
+    List<TenantListVO> findTenantList();
+
+    /**
+     * 查询上月抄表数据
+     * @param rentalId
+     * @return
+     */
+    List<LastMeterReadVO> findLastData(String rentalId);
+
+    /**
+     * 个人中心数据查询
+     * @param date
+     * @return
+     */
+    PersonalCenterVO getPersonalCenterData(String date);
 }

@@ -1,10 +1,12 @@
 package com.mioto.pms.module.statistics.controller;
 
 import com.mioto.pms.module.statistics.model.PaymentProgressVO;
+import com.mioto.pms.module.statistics.model.PaymentVO;
 import com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO;
 import com.mioto.pms.module.statistics.service.IStatisticsService;
 import com.mioto.pms.result.ResultData;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +34,14 @@ public class StatisticsController {
 
     @GetMapping("paymentProgress")
     @ApiOperation(value="缴费进度统计",response = PaymentProgressVO.class)
-    public ResultData paymentProgress(String month){
+    public ResultData paymentProgress(int month){
         return ResultData.success(statisticsService.paymentProgressCount(month));
+    }
+
+    @GetMapping("payment")
+    @ApiOperation(value="缴费统计",response = PaymentVO.class)
+    @ApiImplicitParam(name="type",value = "统计类型 1-按月统计 2-按年统计",dataType="int", paramType = "query",required=true)
+    public ResultData payment(int type){
+        return ResultData.success(statisticsService.paymentCount(type));
     }
 }

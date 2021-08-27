@@ -43,5 +43,5 @@ public interface UserService {
     */
     int batchDelete(int[] ids);
 
-    List<MiniProgramUserListVO> findMiniProgramUserList();
+    List<MiniProgramUserListVO> findMiniProgramUserList(String name,String phone);
 }

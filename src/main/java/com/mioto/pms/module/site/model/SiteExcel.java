@@ -10,11 +10,6 @@ import lombok.Data;
  */
 @Data
 public class SiteExcel {
-    /**
-     * 编号
-     */
-    @ApiModelProperty(value = "编号")
-    private String number;
 
     @ApiModelProperty(value = "省名称")
     private String provinceName;
@@ -29,6 +24,6 @@ public class SiteExcel {
     @ApiModelProperty(value = "详细地址")
     private String address;
 
-    @ApiModelProperty(value = "所属账号")
-    private String username;
+    @ApiModelProperty(value = "用户id")
+    private Integer userId;
 }

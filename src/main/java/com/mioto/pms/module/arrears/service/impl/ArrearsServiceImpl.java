@@ -1,6 +1,5 @@
 package com.mioto.pms.module.arrears.service.impl;
 
-import cn.hutool.core.util.IdUtil;
 import com.mioto.pms.module.arrears.dao.ArrearsDao;
 import com.mioto.pms.module.arrears.model.Arrears;
 import com.mioto.pms.module.arrears.service.ArrearsService;
@@ -25,9 +24,7 @@ public class ArrearsServiceImpl implements ArrearsService {
     */
     @Override
     public List<Arrears> findList(Arrears arrears) {
-        if (BaseUtil.getLoginUserRoleId() == 2){
-            arrears.setUserId(BaseUtil.getLoginUser().getId());
-        }
+        arrears.setUserId(BaseUtil.getLogonUserId());
         return arrearsDao.findList(arrears);
     }
 

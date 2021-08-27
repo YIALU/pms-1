@@ -12,6 +12,20 @@
         <result property="userType" column="t_user_type"/>
     </resultMap>
 
+    <resultMap id="tenantHomeVOMap" type="com.mioto.pms.module.weixin.model.TenantHomeVO">
+        <result property="rentalId" column="rentalId"/>
+        <collection property="unpaidFeesVOList" column="rentalId" select="findUnpaidFeesVOList"/>
+    </resultMap>
+
+    <resultMap id="contractInfoVOMap" type="com.mioto.pms.module.weixin.model.ContractInfoVO">
+        <collection property="contractPriceVOList" column="roomId" select="com.mioto.pms.module.room.dao.RoomDao.findContractPrices"/>
+    </resultMap>
+
+    <resultMap id="personalCenterVOMap" type="com.mioto.pms.module.weixin.model.PersonalCenterVO">
+        <collection property="unpaidFeeBillsVOList" column="{date=selectDate,logonUserId=logonUserId}" select="findUnpaidFeeBillsVO"/>
+    </resultMap>
+
+
     <sql id="miniProgramUserAliasColumns">
         t.`id` as t_id,
         t.`wx_nickname` as t_wx_nickname,
@@ -138,6 +152,85 @@
                 AND t.user_type = #{userType}
             </if>
         </trim>
+    </select>
+
+    <select id="findHomeData" resultMap="tenantHomeVOMap">
+        select d.id roomId,d.room_name roomName,e.address,c.id rentalId,a.name tenantName,a.phone,a.id_card idCard
+        from tenant_info a
+        left join rental_tenant b on a.id = b.tenant_id
+        LEFT JOIN rental_info c on b.rental_id = c.id
+        LEFT JOIN room d on c.room_id = d.id
+        LEFT JOIN site e on d.site_id = e.id
+        where a.id = #{logonUserId}
+    </select>
+    <select id="findUnpaidFeesVOList" resultType="com.mioto.pms.module.weixin.model.TenantBillVO">
+        select b.create_time createTime,b.id costInfoId,sum(c.amount) amount
+        from rental_info a
+        LEFT JOIN cost_info b on a.id = b.rental_id
+        left join cost_detail c on b.id = c.cost_info_id and c.pay_status = 0
+        where a.id = #{rentalId} and b.is_send = 1 and b.pay_status = 0
+        group by b.id
+    </select>
+    <select id="findUnpaidFees" resultType="com.mioto.pms.module.weixin.model.UnpaidFeesVO">
+        select c.amount,c.cost_start_time startTime,c.cost_end_time endTime,c.cost_start_data startData,c.cost_type costTypeId,
+               c.cost_end_data endData,b.create_time createTime,c.bill_child_number billChildNumber,d.`name` costName
+        from rental_info a
+        LEFT JOIN cost_info b on a.id = b.rental_id
+        left join cost_detail c on b.id = c.cost_info_id
+        left join dictionary d on c.cost_type = d.id
+        where a.id = #{rentalId} and c.pay_status = 0
+        order by b.create_time desc, bill_child_number asc
+    </select>
+    <select id="findContractInfo" resultMap="contractInfoVOMap">
+        select a.start_time startTime,a.end_time endTime,a.deposit,a.room_id roomId
+        from rental_info a
+        where a.id = #{rentalId}
+        group by a.id
+    </select>
+    <select id="findHistoryBills" resultType="com.mioto.pms.module.weixin.model.TenantBillVO">
+        select a.id costInfoId,a.create_time createTime,a.total_amount amount from cost_info a
+        where a.rental_id = #{rentalId} and a.pay_status = 1
+        order by a.create_time desc
+    </select>
+    <select id="findTenantList" resultType="com.mioto.pms.module.weixin.model.TenantListVO">
+        select d.`name`,d.phone,concat(e.address,b.room_name) address
+        from rental_info a
+        left join room b on a.room_id = b.id
+        left join rental_tenant c on a.id = c.rental_id
+        left join tenant_info d on c.tenant_id = d.id
+        left join site e on b.site_id = e.id
+        where a.`status` = 1
+        <if test="logonUserId != null">
+            and b.user_id = #{logonUserId}
+        </if>
+    </select>
+    <select id="findLastData" resultType="com.mioto.pms.module.weixin.model.LastMeterReadVO">
+        select b.*,c.`name` from (
+            select max(a.cost_end_data) lastData,max(a.cost_end_time) lastTime,a.cost_type costType from cost_detail a
+            where a.cost_info_id = (select id from cost_info where rental_id = #{rentalId} order by create_time desc limit 1)
+            and a.cost_end_data is not null GROUP BY a.cost_type
+        ) b left join dictionary c on b.costType = c.id
+    </select>
+
+    <select id="findPersonalCenterData" resultMap="personalCenterVOMap">
+        select sum(e.pay_amount) amount,#{date} selectDate,#{logonUserId} logonUserId from room a
+        left join rental_info b on a.id = b.room_id
+        left join cost_info c on b.id = c.rental_id
+        left join cost_detail d on c.id = d.cost_info_id
+        left join pay_info e on d.bill_child_number = e.bill_number
+        where DATE_FORMAT(e.pay_time,"%Y-%m") = #{date} and a.user_id = #{logonUserId}
+    </select>
+
+    <select id="findUnpaidFeeBillsVO" resultType="com.mioto.pms.module.weixin.model.UnpaidFeeBillsVO">
+        select a.id rentalId,concat(e.address,b.room_name) address,c.id costInfoId,sum(d.amount) amount,c.create_time createTime
+        from rental_info a
+        left join room b on a.room_id = b.id
+        left join cost_info c on a.id = c.rental_id
+        left join cost_detail d on c.id = d.cost_info_id
+        left join site e on b.site_id = e.id
+        where b.user_id = #{logonUserId} and a.`status` = 1 and d.pay_status = 0 and DATE_FORMAT(c.create_time,"%Y-%m") = #{date}
+        group by a.id
+        order by c.create_time desc
     </select>
 
 </mapper>

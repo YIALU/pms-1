@@ -59,4 +59,6 @@ public interface RoleDao {
     int insertRoleFunction(@Param("role") Role role,@Param("list") List<Function> list);
 
     List<Role> findByUserId(int id);
+
+    Object isExistUser(int roleId);
 }

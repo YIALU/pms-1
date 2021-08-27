@@ -3,19 +3,18 @@ package com.mioto.pms.module.cost.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.mioto.pms.anno.PayStatusChange;
 import com.mioto.pms.exception.BasicException;
-import com.mioto.pms.module.cost.PayTypeEnum;
-import com.mioto.pms.module.cost.model.*;
+import com.mioto.pms.module.cost.dao.PayInfoDao;
+import com.mioto.pms.module.cost.model.CostDetail;
+import com.mioto.pms.module.cost.model.PayInfo;
+import com.mioto.pms.module.cost.model.PayListDTO;
+import com.mioto.pms.module.cost.model.PayListVO;
 import com.mioto.pms.module.cost.service.ICostDetailService;
-import com.mioto.pms.module.cost.service.ICostInfoService;
+import com.mioto.pms.module.cost.service.IPayInfoService;
 import com.mioto.pms.result.SystemTip;
 import com.mioto.pms.utils.BaseUtil;
 import org.springframework.stereotype.Service;
 
-import com.mioto.pms.module.cost.dao.PayInfoDao;
-import com.mioto.pms.module.cost.service.IPayInfoService;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,32 +99,44 @@ public class PayInfoServiceImpl implements IPayInfoService{
     @Override
     public int miniProgramCashPay(String[] billNumbers) {
         if (ArrayUtil.isNotEmpty(billNumbers)){
-            List<PayInfo> payInfoList = new ArrayList<>(billNumbers.length);
-            PayInfo payInfo;
-            Date now =  new Date();
-            for (String billNumber : billNumbers) {
-                payInfo = new PayInfo();
-                CostDetail costDetail = costDetailService.findByColumn("bill_child_number",billNumber);
-                if (ObjectUtil.isNotEmpty(costDetail)){
-                    payInfo.setPayAmount(costDetail.getAmount());
-                }else {
-                    throw new BasicException(SystemTip.BILL_NUMBER_NOT_EXIST);
-                }
-                payInfo.setBillNumber(billNumber);
-                payInfo.setPayTime(now);
-                payInfo.setPayType(PAY_TYPE_CASH);
-                payInfoList.add(payInfo);
-            }
-            return payInfoDao.pay(payInfoList);
+            return addPayInfo(billNumbers,PAY_TYPE_CASH);
         }
         throw new BasicException(SystemTip.BILL_NUMBER_NOT_EMPTY);
     }
 
     @Override
+    public int miniProgramPay(String billNumber) {
+        return addPayInfo(BaseUtil.getWxPaymentBillNumbers(billNumber),PAY_TYPE_WX);
+    }
+
+    @Override
     public List<PayListVO> findByPager(PayListDTO payListDTO) {
-        if (BaseUtil.getLoginUserRoleId() == 2){
-            payListDTO.setUserId(BaseUtil.getLoginUser().getId());
-        }
+        payListDTO.setUserId(BaseUtil.getLogonUserId());
         return payInfoDao.findByPager(payListDTO);
+    }
+
+    /**
+     * 新增支付信息
+     * @param billNumbers
+     * @return
+     */
+    private int addPayInfo(String[] billNumbers,Integer payType){
+        List<PayInfo> payInfoList = new ArrayList<>(billNumbers.length);
+        PayInfo payInfo;
+        Date now =  new Date();
+        for (String billNumber : billNumbers) {
+            payInfo = new PayInfo();
+            CostDetail costDetail = costDetailService.findByColumn("bill_child_number",billNumber);
+            if (ObjectUtil.isNotEmpty(costDetail)){
+                payInfo.setPayAmount(costDetail.getAmount());
+            }else {
+                throw new BasicException(SystemTip.BILL_NUMBER_NOT_EXIST);
+            }
+            payInfo.setBillNumber(billNumber);
+            payInfo.setPayTime(now);
+            payInfo.setPayType(payType);
+            payInfoList.add(payInfo);
+        }
+        return payInfoDao.pay(payInfoList);
     }
 }

@@ -187,5 +187,11 @@
         left join site f on e.site_id = f.id
         left join user g on e.user_id = g.id
         where a.user_type = 1
+        <if test="phone != null and phone != ''">
+            and locate(#{phone},b.phone)
+        </if>
+        <if test="name != null and name != ''">
+            and locate(#{name},b.name)
+        </if>
     </select>
 </mapper>

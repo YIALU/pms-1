@@ -85,4 +85,8 @@ public interface IRentalInfoService{
     List<RentalInfo> findByRoomIdAndStatus(String roomId,int status);
 
     CancellationVO findCancellation(String rentalId);
+
+    WxCancellationVO findWxCancellation(String rentalId);
+
+    int cancellation(CancellationDTO cancellationDTO);
 }

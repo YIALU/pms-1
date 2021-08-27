@@ -55,9 +55,9 @@ public class UserController {
 
     @GetMapping("/pager/miniProgram")
     @ApiOperation(value="分页查询小程序用户")
-    public ResultData pagerMiniProgram ( BasePager basePager){
+    public ResultData pagerMiniProgram ( BasePager basePager,String name,String phone){
         PageHelper.startPage(basePager.getPage(), basePager.getRows(), basePager.getSortBy());
-        List<MiniProgramUserListVO> list = userService.findMiniProgramUserList();
+        List<MiniProgramUserListVO> list = userService.findMiniProgramUserList(name,phone);
         PageInfo<MiniProgramUserListVO> pageInfo = new PageInfo<>(list);
         Map<String, Object> result = new HashMap<>(4);
         result.put("count", pageInfo.getTotal());

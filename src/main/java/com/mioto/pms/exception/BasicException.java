@@ -10,13 +10,19 @@ import com.mioto.pms.result.SystemTip;
  */
 public class BasicException extends RuntimeException {
     private SystemTip systemTip;
+    private String desc;
 
     public BasicException(SystemTip systemTip) {
         this.systemTip = systemTip;
     }
 
+    public BasicException(SystemTip systemTip,String obj) {
+        this.systemTip = systemTip;
+        this.desc = obj;
+    }
+
     public ResultData toResultData() {
-        return ResultData.result(systemTip);
+        return ResultData.result(systemTip,desc);
     }
 
     @Override

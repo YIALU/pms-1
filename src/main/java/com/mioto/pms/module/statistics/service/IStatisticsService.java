@@ -1,6 +1,7 @@
 package com.mioto.pms.module.statistics.service;
 
 import com.mioto.pms.module.statistics.model.PaymentProgressVO;
+import com.mioto.pms.module.statistics.model.PaymentVO;
 import com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO;
 
 /**
@@ -10,5 +11,7 @@ import com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO;
 public interface IStatisticsService {
     RoomInfoStatisticsVO findRoomCount();
 
-    PaymentProgressVO paymentProgressCount(String month);
+    PaymentProgressVO paymentProgressCount(int month);
+
+    PaymentVO paymentCount(int type);
 }

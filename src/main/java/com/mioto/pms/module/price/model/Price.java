@@ -45,7 +45,7 @@ public class Price implements Serializable {
      * 策略类型
      */
     @ApiModelProperty(value = "单价")
-    private double unitPrice;
+    private Double unitPrice;
 
 
     /**
@@ -68,5 +68,8 @@ public class Price implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date creationTime;
 
+    public Price get(){
+        return this;
+    }
 
 }

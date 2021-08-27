@@ -63,4 +63,7 @@ public interface PriceDao {
 
     List<Price> findByRoomId(String roomId);
 
+    List<Price> findByRentalId(String rentalId);
+
+    int deleteById(String id);
 }

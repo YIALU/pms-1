@@ -101,4 +101,10 @@ public interface CostDetailDao{
      * @return
      */
     int findCountByCostId(String costId);
+
+    int batchChangePayStatus( @Param("billNumbers")String[] billNumbers, @Param("costType") String costType);
+
+    int editPayStatus(String[] billNumbers);
+
+    List<CostDetail> findListByCostInfoId(String costInfoId);
 }

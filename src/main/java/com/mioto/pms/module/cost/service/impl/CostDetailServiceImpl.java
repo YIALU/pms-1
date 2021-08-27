@@ -1,14 +1,13 @@
 package com.mioto.pms.module.cost.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.mioto.pms.module.cost.model.CostDetailDTO;
-import com.mioto.pms.module.cost.model.EditCostDetailDTO;
-import com.mioto.pms.module.cost.service.ICostInfoService;
-import org.springframework.stereotype.Service;
-
 import com.mioto.pms.module.cost.dao.CostDetailDao;
 import com.mioto.pms.module.cost.model.CostDetail;
+import com.mioto.pms.module.cost.model.CostDetailDTO;
+import com.mioto.pms.module.cost.model.EditCostDetailDTO;
 import com.mioto.pms.module.cost.service.ICostDetailService;
+import com.mioto.pms.module.cost.service.ICostInfoService;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -101,6 +100,21 @@ public class CostDetailServiceImpl implements ICostDetailService{
         return 1;
     }
 
+    @Override
+    public int batchChangePayStatus(String[] billNumbers,String costType) {
+        return costDetailDao.batchChangePayStatus(billNumbers,costType);
+    }
+
+    @Override
+    public int editPayStatus(String[] billNumbers) {
+        return costDetailDao.editPayStatus(billNumbers);
+    }
+
+    @Override
+    public List<CostDetail> findListByCostInfoId(String costInfoId) {
+        return costDetailDao.findListByCostInfoId(costInfoId);
+    }
+
     private CostDetail builder(CostDetailDTO costDetailDTO, String costId){
         CostDetail costDetail = new CostDetail();
         costDetail.setType(BILL_TYPE_NON_GEN);
@@ -111,6 +125,7 @@ public class CostDetailServiceImpl implements ICostDetailService{
         costDetail.setAmount(costDetailDTO.getAmount());
         costDetail.setCostType(costDetailDTO.getCostTypeId());
         costDetail.setCostInfoId(costId);
+        costDetail.setUnit(costDetailDTO.getUnit());
         return costDetail;
     }
 }

@@ -1,7 +1,6 @@
 package com.mioto.pms.aop;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.mioto.pms.anno.MeterReadingAnno;
@@ -22,6 +21,7 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -31,6 +31,7 @@ import java.util.List;
  * @author admin
  * @date 2021-07-16 15:23
  */
+@Async
 @Aspect
 @Component
 public class MeterReadingTaskAspect {

@@ -28,7 +28,7 @@ public interface DeviceDao {
     */
    int add(Device device);
 
-   List<DeviceDTO> findList(Device device);
+   List<DeviceDTO> findList(@Param("device") Device device,@Param("siteId")String siteId);
 
 
    List<Device> findByIds(String[] ids);

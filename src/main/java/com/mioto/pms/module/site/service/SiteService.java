@@ -3,9 +3,8 @@ package com.mioto.pms.module.site.service;
 
 import com.mioto.pms.module.site.model.Site;
 import com.mioto.pms.module.site.model.SiteDTO;
+import com.mioto.pms.module.site.model.SiteVO;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +43,7 @@ List<SiteDTO> findList(Site site);
     */
     int batchDelete(String[] ids);
 
-    void exportExcel(HttpServletResponse response, String[] ids) throws IOException;
+    int importExcel(List<Map<String,Object>> list);
 
-    void importExcel(List<Map<String,Object>> list);
+    SiteVO findDetail(String id);
 }

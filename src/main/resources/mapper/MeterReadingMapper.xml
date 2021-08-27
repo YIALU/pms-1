@@ -136,7 +136,7 @@
                 AND t.`number` = #{number}
             </if>
             <if test="name != null">
-                AND t.`name` = #{name}
+                AND locate(#{name},t.`name`)
             </if>
             <if test="type != null">
                 AND t.`type` = #{type}
@@ -148,24 +148,24 @@
                 AND t.`time` = #{time}
             </if>
             <if test="userId != null">
-               AND  t.user_id=#{userId},
+               AND  t.user_id=#{userId}
             </if>
         </trim>
     </select>
 
     <select id="findByRoomId" resultMap="meterReadingResultMap">
-        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t left join room a on a.meter_water = t.id where a.id = #{roomId}
+        SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t left join room a on a.meter_elect = t.id where a.id = #{roomId}
     </select>
 
     <select id="findByRentalId" resultMap="meterReadingResultMap">
         SELECT <include refid="meterReadingAliasColumns"/> FROM meter_reading t
-        left join room a on a.meter_Water = t.id left join rental_info b on a.id = b.room_id
+        left join room a on a.meter_elect = t.id left join rental_info b on a.id = b.room_id
         where b.id = #{rentalId}
     </select>
 
     <select id="findRentingMeterReadings" resultMap="roomMeterReadingResultMap">
-        SELECT <include refid="meterReadingAliasColumns"/>,a.id FROM meter_reading t
-        left join room a on a.meter_Water = t.id left join rental_info b on a.id = b.room_id
+        SELECT <include refid="meterReadingAliasColumns"/>,a.id roomId FROM meter_reading t
+        left join room a on a.meter_elect = t.id left join rental_info b on a.id = b.room_id
         where b.status = 1
     </select>
 </mapper>

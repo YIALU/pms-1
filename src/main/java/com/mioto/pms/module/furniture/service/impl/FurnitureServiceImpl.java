@@ -4,6 +4,7 @@ import com.mioto.pms.module.furniture.dao.FurnitureDao;
 import com.mioto.pms.module.furniture.model.Furniture;
 import com.mioto.pms.module.furniture.model.FurnitureListVO;
 import com.mioto.pms.module.furniture.service.FurnitureService;
+import com.mioto.pms.utils.BaseUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,6 +25,7 @@ public class FurnitureServiceImpl implements FurnitureService {
     */
     @Override
     public List<FurnitureListVO> findList(Furniture furniture) {
+        furniture.setUserId(BaseUtil.getLogonUserId());
         return furnitureDao.findList(furniture);
     }
 
@@ -40,7 +42,7 @@ public class FurnitureServiceImpl implements FurnitureService {
     */
     @Override
     public int insertIgnoreNull(Furniture furniture) {
-
+         furniture.setUserId(BaseUtil.getLoginUser().getId());
          return furnitureDao.insertIgnoreNull(furniture);
     }
 

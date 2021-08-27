@@ -32,7 +32,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 
 /**
  * @author mioto-qinxj
@@ -61,18 +60,14 @@ public class BaseUtil {
      * 当前登录用户角色id  - 当前只需要判断是否为房东（id:2）即可,如果是房东加入数据筛选条件
      * @return
      */
-    public static int getLoginUserRoleId() {
-        Object object = SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        if (object instanceof  Map) {
-            Map<String, String> map = (Map<String, String>) object;
-            return Integer.parseInt(map.values().stream().findFirst().get());
-        }
-        return  0;
+    private static Integer getLoginUserRoleId() {
+        String roleId = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+        return StrUtil.isEmpty(roleId) ? null : Integer.parseInt(roleId);
     }
 
     public static Integer getLogonUserId(){
         Integer userId = null;
-        if (getLoginUserRoleId() == 2){
+        if (getLoginUserRoleId() != null && getLoginUserRoleId()  == 2){
             userId = getLoginUser().getId();
         }
         return userId;
@@ -202,6 +197,17 @@ public class BaseUtil {
     public static long intervalDay(Date start,Date end){
         return DateUtil.between(DateUtil.beginOfDay(start),DateUtil.beginOfDay(end), DateUnit.DAY);
     }
+
+    /**
+     * 判断两个日期年月是否相等
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static boolean equalByYearAndMonth(Date date1,Date date2){
+        return DateUtil.isSameDay(DateUtil.beginOfMonth(date1),DateUtil.beginOfMonth(date2));
+    }
+
     /**
      * 请求签名
      * @param appId 商户号
@@ -253,6 +259,27 @@ public class BaseUtil {
                 .append("serial_no=").append("\"").append(serialNo).append("\"").append(StrUtil.COMMA)
                 .append("signature=").append("\"").append(signature).append("\"").toString();
     }
+
+    /**
+     * 获取微信支付账单子编号
+     * @param billNumber
+     * @return
+     */
+    public static String[] getWxPaymentBillNumbers(String billNumber){
+        //重组子账单编号 如 billNumber为：202107211828006743505-1-3-4
+        //将其封装成子账单编号数组：
+        //202107211828006743505-1
+        //202107211828006743505-3
+        //202107211828006743505-4
+        String[] array = StrUtil.split(billNumber,StrUtil.DASHED);
+        int len = array.length;
+        String[] billNumbers = new String[len - 1];
+        for (int i = 1; i < len; i++) {
+            billNumbers[i-1] = array[0] + StrUtil.DASHED + array[i];
+        }
+        return billNumbers;
+    }
+
 
     /**
      * 计算签名值

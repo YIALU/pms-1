@@ -67,8 +67,8 @@
 
     <insert id="pay">
         insert into pay_info (`pay_time`,`pay_type`,`pay_amount`,`bill_number`) values
-        <foreach collection="payInfoList" item="item" separator="," open="(" close=")">
-            #{item.payTime},#{item.payType},#{item.payAmount},#{item.billNumber}
+        <foreach collection="payInfoList" item="item" separator=",">
+            (#{item.payTime},#{item.payType},#{item.payAmount},#{item.billNumber})
         </foreach>
     </insert>
 

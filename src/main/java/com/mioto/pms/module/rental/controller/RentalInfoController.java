@@ -1,6 +1,8 @@
 package com.mioto.pms.module.rental.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.mioto.pms.anno.MeterReadingAnno;
+import com.mioto.pms.component.bill.CancellationBill;
 import com.mioto.pms.module.meter.MeterReadType;
 import com.mioto.pms.module.rental.model.*;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +33,8 @@ import java.util.Optional;
 public class RentalInfoController {
     @Resource
     private IRentalInfoService rentalInfoService;
+    @Resource
+    private CancellationBill cancellationBill;
 
     /**
      * 分页查询列表
@@ -60,10 +64,13 @@ public class RentalInfoController {
     @PostMapping
     @ApiOperation(value="新增房屋出租信息",notes = "租住办理")
     public ResultData add (@RequestBody RentalDetailDTO rentalInfo){
-        return Optional.of(rentalInfoService.insertIgnoreNull(rentalInfo))
-                .filter(count -> count > 0)
-                .map(count -> ResultData.success(rentalInfo))
-                .orElseThrow(() -> new BasicException(SystemTip.INSERT_FAIL));
+        if (StrUtil.isNotEmpty(rentalInfo.getRoomId())) {
+            return Optional.of(rentalInfoService.insertIgnoreNull(rentalInfo))
+                    .filter(count -> count > 0)
+                    .map(count -> ResultData.success(rentalInfo))
+                    .orElseThrow(() -> new BasicException(SystemTip.INSERT_FAIL));
+        }
+        throw new RuntimeException("房间id不能为空");
     }
 
     @MeterReadingAnno(type = MeterReadType.UPDATE)
@@ -101,9 +108,22 @@ public class RentalInfoController {
     }
 
     @GetMapping("/cancellation/{rentalId}")
-    @ApiOperation(value="查询退租办理信息")
+    @ApiOperation(value="查询退租办理信息",response = CancellationVO.class)
     public ResultData findCancellation (@PathVariable("rentalId")String rentalId){
         return ResultData.success(rentalInfoService.findCancellation(rentalId));
     }
 
+    @GetMapping("/wx/cancellation/{rentalId}")
+    @ApiOperation(value="小程序查询退租办理信息",response = WxCancellationVO.class)
+    public ResultData findWxCancellation (@PathVariable("rentalId")String rentalId){
+        return ResultData.success(rentalInfoService.findWxCancellation(rentalId));
+    }
+
+
+    @PostMapping("/cancellation")
+    @ApiOperation(value="退租办理")
+    public ResultData cancellation (@RequestBody CancellationDTO cancellationDTO){
+        cancellationBill.create(cancellationDTO);
+        return ResultData.success();
+    }
 }
