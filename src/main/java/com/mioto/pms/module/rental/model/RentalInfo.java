@@ -46,7 +46,7 @@ public class RentalInfo implements Serializable{
     @ApiModelProperty(value = "押金")
     private String deposit;
     /**
-     * 出租信息状态 1-正在出租 2-历史出租纪录
+     * 出租信息状态 1-正在出租 2-退租中 3-历史出租纪录
      */
     @ApiModelProperty(value = "出租信息状态 1-正在出租 2-退租中 3-历史出租纪录")
     private Integer status;

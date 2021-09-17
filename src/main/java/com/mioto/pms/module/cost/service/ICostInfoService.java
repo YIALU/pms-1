@@ -74,7 +74,7 @@ public interface ICostInfoService{
 
     List<CostListVO> findCostList(CostListDTO costListDTO,boolean isALl);
 
-    void insertDetail(String roomId,boolean firstInsert);
+    void insertDetail(String roomId);
 
     int batchSend(String[] costInfoIds);
 

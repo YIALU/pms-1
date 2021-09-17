@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.StrBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mioto.pms.module.site.model.SiteBO;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -37,6 +38,9 @@ public class RentalListVO {
     private String contractTime;
     @ApiModelProperty(value = "房屋出租信息id")
     private String rentalId;
+
+    @ApiModelProperty(value = "房间详细地址")
+    private SiteBO siteBO;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Date startTime;

@@ -123,4 +123,17 @@
     <select id="paymentCount" resultMap="paymentVOMap">
         select #{logonUserId} logonUserId,#{type} type
     </select>
+    <select id="energy" resultType="com.mioto.pms.module.statistics.model.EnergyVO">
+        select DATE_FORMAT(c.create_date,#{wildcard}) as day,sum(c.usage_amount) as usageAmount from room a
+        left join device_detail b on a.id = b.room_id
+        right join ${tableName} c on b.id = c.device_id
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="logonUserId != null">
+                AND a.user_id = #{logonUserId}
+            </if>
+            and c.create_date BETWEEN #{beginDate} and #{endDate}
+        </trim>
+        group by day
+        order by c.create_date
+    </select>
 </mapper>

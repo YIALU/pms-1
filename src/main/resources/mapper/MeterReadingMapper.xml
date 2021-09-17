@@ -79,6 +79,9 @@
             </if>
         </trim>
     </insert>
+    <insert id="saveMeterData">
+        insert into ${tableName} (`device_id`,`value`,`create_date`) values (#{meterData.deviceId},#{meterData.value},#{meterData.createDate})
+    </insert>
 
     <update id="updateIgnoreNull">
         update meter_reading
@@ -106,6 +109,9 @@
             </if>
         </trim>
         where id = #{id}
+    </update>
+    <update id="updateMeterData">
+        update ${tableName} set `value` = #{meterData.value},create_date = #{meterData.createDate},usage_amount = #{meterData.usageAmount} where id = #{meterData.id}
     </update>
 
     <!--删除-->
@@ -167,5 +173,13 @@
         SELECT <include refid="meterReadingAliasColumns"/>,a.id roomId FROM meter_reading t
         left join room a on a.meter_elect = t.id left join rental_info b on a.id = b.room_id
         where b.status = 1
+    </select>
+    <select id="findDataByDeviceId" resultType="java.lang.Double">
+        select `value` from ${tableName}
+        where device_id = #{deviceId}
+        order by create_date limit 1
+    </select>
+    <select id="findLastData" resultType="com.mioto.pms.module.meter.model.MeterData">
+        select id,device_id deviceId,`value`,create_date createDate,usage_amount usageAmount from ${tableName} where device_id = #{deviceId} order by create_date desc limit 1
     </select>
 </mapper>

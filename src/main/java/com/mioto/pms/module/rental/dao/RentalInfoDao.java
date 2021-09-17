@@ -78,4 +78,8 @@ public interface RentalInfoDao{
     CancellationVO findCancellation(String rentalId);
 
     WxCancellationVO findWxCancellation(String rentalId);
+
+    String[] findCancelIdsByBillNumbers(String[] billNumbers);
+
+    int updateStatusBatch(@Param("rentalIds") String[] rentalIds,@Param("status") int status);
 }

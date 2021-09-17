@@ -7,11 +7,12 @@ import com.mioto.pms.anno.MeterReadingAnno;
 import com.mioto.pms.module.meter.MeterReadType;
 import com.mioto.pms.module.meter.dao.MeterReadingDao;
 import com.mioto.pms.module.meter.model.MeterReading;
+import com.mioto.pms.module.rental.RentalStatus;
 import com.mioto.pms.module.rental.model.RentalDetailDTO;
 import com.mioto.pms.module.rental.model.RentalInfo;
 import com.mioto.pms.module.rental.service.IRentalInfoService;
 import com.mioto.pms.module.room.model.RoomDetailDTO;
-import com.mioto.pms.quartz.MeterReadingTask;
+import com.mioto.pms.quartz.MeterReadingMonthTask;
 import com.mioto.pms.quartz.QuartzManager;
 import com.mioto.pms.result.ResultData;
 import com.mioto.pms.result.SystemTip;
@@ -68,7 +69,7 @@ public class MeterReadingTaskAspect {
                     RoomDetailDTO roomDetailDTO = (RoomDetailDTO) args[0];
                     //如果修改房间的抄表策略,并且房间正在出租，也要重置定时任务
                     if (ObjectUtil.isNotEmpty(roomDetailDTO.getMeterElect())){
-                        List<RentalInfo> rentalInfoList = rentalInfoService.findByRoomIdAndStatus(roomDetailDTO.getId(),1);
+                        List<RentalInfo> rentalInfoList = rentalInfoService.findByRoomIdAndStatus(roomDetailDTO.getId(), RentalStatus.STATUS_RENTING);
                         if (CollUtil.isNotEmpty(rentalInfoList) && rentalInfoList.size() == 1) {
                             new QuartzManager().deleteDynamicTask(roomDetailDTO.getId());
                             addTask(roomDetailDTO.getId());
@@ -96,7 +97,7 @@ public class MeterReadingTaskAspect {
             String dateStr = BaseUtil.createSchedulingPattern(meterReading.getDate(), meterReading.getTime());
             if (StrUtil.isNotEmpty(dateStr)) {
                 final String schedulingPattern = quartzManager.createFixQuartz(dateStr);
-                quartzManager.startTask(roomId, schedulingPattern, new MeterReadingTask(roomId));
+                quartzManager.startTask(roomId, schedulingPattern, new MeterReadingMonthTask(roomId));
             }
         }
     }

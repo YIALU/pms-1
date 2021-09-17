@@ -173,11 +173,13 @@
     </select>
     <select id="findUnpaidFees" resultType="com.mioto.pms.module.weixin.model.UnpaidFeesVO">
         select c.amount,c.cost_start_time startTime,c.cost_end_time endTime,c.cost_start_data startData,c.cost_type costTypeId,
-               c.cost_end_data endData,b.create_time createTime,c.bill_child_number billChildNumber,d.`name` costName
+               c.cost_end_data endData,b.create_time createTime,c.bill_child_number billChildNumber,
+               case when c.type = 1 then d.`name` else e.`name` end costName
         from rental_info a
         LEFT JOIN cost_info b on a.id = b.rental_id
         left join cost_detail c on b.id = c.cost_info_id
-        left join dictionary d on c.cost_type = d.id
+        left join dictionary d on c.cost_type = d.id and c.type = 1
+        left join cost_type e on c.cost_type = e.id and c.type = 2
         where a.id = #{rentalId} and c.pay_status = 0
         order by b.create_time desc, bill_child_number asc
     </select>

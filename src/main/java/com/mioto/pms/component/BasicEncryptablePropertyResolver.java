@@ -48,7 +48,7 @@ public class BasicEncryptablePropertyResolver implements EncryptablePropertyReso
 
     public static void main(String[] args) {
         BasicEncryptablePropertyResolver encryptablePropertyResolver = new BasicEncryptablePropertyResolver();
-        System.out.println(encryptablePropertyResolver.encryptor.encrypt("123456"));
+        System.out.println(encryptablePropertyResolver.encryptor.encrypt("qgafaQPI"));
         System.out.println(encryptablePropertyResolver.resolvePropertyValue("ENC[fXOYcT7fnjzhwTan6+ztt9AmfQA6tjEX2JRlpvbd+Rc=]"));
     }
 }

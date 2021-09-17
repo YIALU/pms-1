@@ -7,6 +7,7 @@ import com.mioto.pms.module.room.model.RoomDeviceRelation;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author lizhicai
@@ -53,4 +54,12 @@ public interface IDeviceService {
     int clearRoomRelation(String roomId);
 
     void zipQrCode(Device device, String siteId, HttpServletResponse response);
+
+    List<Device> findByRoomId(String roomId);
+
+    List<Device> findByFocus(Set<String> focus);
+
+    Device findByLineAndfocus(int line,String focus);
+
+    int updateOnOffStatusByDeviceIdAndFocus(String deviceId,String focus,int onOffStatus);
 }

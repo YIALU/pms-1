@@ -35,7 +35,7 @@ public class GenerateCostAspect {
         if (StrUtil.equals(resultData.getCode(), SystemTip.OK.code())) {
             Object[] args = point.getArgs();
             String roomId = ((RentalDetailDTO)args[0]).getRoomId();
-            costInfoService.insertDetail(roomId,true);
+            costInfoService.insertDetail(roomId);
         }
     }
 }

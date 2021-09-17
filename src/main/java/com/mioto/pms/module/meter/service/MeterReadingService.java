@@ -1,6 +1,7 @@
 package com.mioto.pms.module.meter.service;
 
 
+import com.mioto.pms.module.meter.model.MeterData;
 import com.mioto.pms.module.meter.model.MeterReading;
 import com.mioto.pms.module.meter.model.RoomMeterReading;
 
@@ -40,10 +41,18 @@ List<MeterReading> findList(MeterReading meterReading);
     * 根据主键列表批量删除
     */
     int batchDelete(String[] ids);
+    MeterReading findByRoomId(String roomId);
+
 
     /**
      * 查询所有在租房屋抄表策略
      * @return
      */
     List<RoomMeterReading> findRentingMeterReadings();
+
+    MeterData findLastData(String deviceType,int deviceId);
+
+    int saveMeterData(MeterData meterData);
+
+    double findDataByDeviceIdAndType(int deviceId,String deviceType);
 }

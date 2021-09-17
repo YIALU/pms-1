@@ -7,6 +7,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.mioto.pms.anno.PayStatusChange;
+import com.mioto.pms.cache.VerCodeCache;
 import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.cost.PayTypeEnum;
 import com.mioto.pms.module.cost.service.IPayInfoService;
@@ -46,6 +47,8 @@ public class WxController {
 
     @Resource
     private IPayInfoService payInfoService;
+    @Resource
+    private VerCodeCache verCodeCache;
 
     @ApiOperation(value = "微信小程序登录")
     @PostMapping("login")
@@ -62,12 +65,15 @@ public class WxController {
     @ApiOperation(value = "绑定手机号")
     @PostMapping("bind")
     public ResultData bindPhone(String phone,String openId,String nickName,String verCode){
-        MiniProgramUser miniProgramUser = miniProgramUserService.bindPhone(phone,openId,nickName);
-        //生成token返回
-        JSONObject result = JSONUtil.createObj()
-                .set("token", JwtTokenUtil.createAccessToken(miniProgramUser,miniProgramUser.getUserType()))
-                .set("logonUser",miniProgramUser);
-        return ResultData.success(result);
+        if (verCodeCache.codeEquals(verCode,phone)){
+            MiniProgramUser miniProgramUser = miniProgramUserService.bindPhone(phone,openId,nickName);
+            //生成token返回
+            JSONObject result = JSONUtil.createObj()
+                    .set("token", JwtTokenUtil.createAccessToken(miniProgramUser,miniProgramUser.getUserType()))
+                    .set("logonUser",miniProgramUser);
+            return ResultData.success(result);
+        }
+        return ResultData.result(SystemTip.CODE_ERROR);
     }
 
     @ApiOperation(value = "获取token")
@@ -84,12 +90,22 @@ public class WxController {
     }
 
 
-    @ApiOperation(value = "获取微信登录参数")
+    @ApiOperation(value = "获取房东端小程序登录参数")
     @GetMapping("info")
-    public ResultData getWxInfo(){
+    public ResultData getWxTenantInfo(){
         JSONObject jsonObject = JSONUtil.createObj()
                 .putOpt("secret","6b40f66c9da35b9822fe5316b7a6d2bd")
                 .putOpt("appid","wxc537d89180b81db3");
+        return ResultData.success(jsonObject);
+    }
+
+
+    @ApiOperation(value = "获取租户端小程序登录参数")
+    @GetMapping("/landlord/info")
+    public ResultData getWxLandlordInfo(){
+        JSONObject jsonObject = JSONUtil.createObj()
+                .putOpt("secret","5ee2724697c6841f7a61079236581fce")
+                .putOpt("appid","wx93c243e1c5c1867e");
         return ResultData.success(jsonObject);
     }
 

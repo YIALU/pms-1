@@ -21,6 +21,7 @@
 
     <resultMap id="rentalListVOMap" type="com.mioto.pms.module.rental.model.RentalListVO">
         <result column="roomId" property="roomId"/>
+        <association property="siteBO" column="site_id" select="com.mioto.pms.module.site.dao.SiteDao.findSiteBOBySiteId"/>
         <association property="rentFee" column="roomId" select="com.mioto.pms.module.price.dao.PriceDao.findRentFeeByRoomId"/>
     </resultMap>
 
@@ -128,6 +129,12 @@
         </trim>
         where id = #{id}
     </update>
+    <update id="updateStatusBatch">
+        update rental_info set `status` = #{status} where id in
+        <foreach collection="rentalIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
 
     <delete id="deleteByColumn">
         delete from rental_info where ${column} = #{value}
@@ -148,7 +155,7 @@
         select a.id as roomId,a.room_name as roomName,a.style as roomStyle,
                b.id as rentalId,b.start_time as startTime,b.end_time as endTime,
                case when b.id is null then 0 else b.`status` end as roomStatus,d.phone,
-               d.name as tenantName
+               d.name as tenantName,a.site_id
         from room a
         left join rental_info b on a.id = b.room_id
         left join rental_tenant c on c.rental_id = b.id
@@ -182,7 +189,7 @@
     </select>
 
     <select id="findCancellation" resultMap="cancellationVOMap">
-        select d.id_card idCard,d.name as tenantName,e.id costInfoId
+        select d.id_card idCard,d.name as tenantName,e.id costInfoId,b.room_id roomId
         from (select * from cost_info where rental_id = #{rentalId} order by create_time desc limit 1 ) e
         left join rental_info b  on b.id = e.rental_id
         left join rental_tenant c on c.rental_id = b.id
@@ -191,8 +198,21 @@
     </select>
 
     <select id="findWxCancellation" resultMap="wxCancellationVOMap">
-        select e.id costInfoId,b.id rentalId,b.create_date rentalTime
+        select e.id costInfoId,b.id rentalId,b.create_date rentalTime,b.room_id roomId
         from (select * from cost_info where rental_id = #{rentalId} order by create_time desc limit 1 ) e
         left join rental_info b  on b.id = e.rental_id
+    </select>
+    <select id="findCancelIdsByBillNumbers" resultType="string">
+        select case when count(1) = count(case when pay_status = 1 then 1 end) then rental_id else '' end from cost_info
+        where rental_id in(
+            select a.id from rental_info a where a.id in (
+                select b.rental_id from cost_info b
+                    where b.bill_number in
+                    <foreach collection="billNumbers" item="item" separator="," open="(" close=")">
+                        #{item}
+                    </foreach>
+                    group by b.rental_id
+            ) and a.`status` = 2)
+        group by rental_id
     </select>
 </mapper>

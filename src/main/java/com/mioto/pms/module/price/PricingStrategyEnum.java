@@ -47,7 +47,11 @@ public enum PricingStrategyEnum {
     /**
      * 卫生费
      */
-    HEALTH_FEE("fbd4262ebe4046c6bc4d7e29b7179436",2,"月");
+    HEALTH_FEE("fbd4262ebe4046c6bc4d7e29b7179436",2,"月"),
+    /**
+     * 附加费用
+     */
+    OTHERS("",3,"");
 
     public static PricingStrategyEnum getInstance(String id){
         for (PricingStrategyEnum value : PricingStrategyEnum.values()) {
@@ -55,7 +59,7 @@ public enum PricingStrategyEnum {
                 return value;
             }
         }
-        throw new RuntimeException("该费用类型不支持");
+        return OTHERS;
     }
 
     public int getType() {

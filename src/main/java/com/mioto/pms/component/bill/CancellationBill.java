@@ -7,9 +7,11 @@ import com.mioto.pms.module.cost.model.CostDetail;
 import com.mioto.pms.module.cost.model.CostDetailBO;
 import com.mioto.pms.module.cost.model.CostInfo;
 import com.mioto.pms.module.cost.service.ICostDetailService;
+import com.mioto.pms.module.cost.service.ICostTypeService;
 import com.mioto.pms.module.price.PricingStrategyEnum;
 import com.mioto.pms.module.price.model.Price;
 import com.mioto.pms.module.price.service.PriceService;
+import com.mioto.pms.module.rental.RentalStatus;
 import com.mioto.pms.module.rental.model.CancellationDTO;
 import com.mioto.pms.module.rental.model.CancellationDataDTO;
 import com.mioto.pms.module.rental.model.RentalDetailDTO;
@@ -39,6 +41,8 @@ public class CancellationBill extends AbstractBill{
     private CostInfoDao costInfoDao;
     @Resource
     private ICostDetailService costDetailService;
+    @Resource
+    private ICostTypeService costTypeService;
 
 
     private CostDetailBO costDetailBO;
@@ -64,20 +68,21 @@ public class CancellationBill extends AbstractBill{
             costDetail = new CostDetail();
             costDetail.setCostInfoId(costDetailBO.getId());
             costDetail.setBillChildNumber(costDetailBO.getBillNumber() + StrUtil.DASHED + ++costDetailSize);
-            costDetail.setUnit(priceMap.get(cancellationDataDTO.getCostTypeId()).getUnitPrice());
-            costDetail.setCostType(priceMap.get(cancellationDataDTO.getCostTypeId()).getType());
             costDetail.setType(ICostDetailService.BILL_TYPE_GEN);
             costDetail.setCostEndTime(currentDate);
             costDetail.setCostStartTime(cancellationDataDTO.getStartDate());
+            costDetail.setCostEndData(cancellationDataDTO.getEndData());
+            costDetail.setCostStartData(cancellationDataDTO.getStartData());
             if (PricingStrategyEnum.getInstance(cancellationDataDTO.getCostTypeId()).getType() == 1){
-                costDetail.setCostEndData(cancellationDataDTO.getEndData());
-                costDetail.setCostStartData(cancellationDataDTO.getStartData());
-                costDetail.setCostStartTime(cancellationDataDTO.getStartDate());
+                costDetail.setCostType(priceMap.get(cancellationDataDTO.getCostTypeId()).getType());
+                costDetail.setUnit(priceMap.get(cancellationDataDTO.getCostTypeId()).getUnitPrice());
                 Double intervalData = NumberUtil.sub(costDetail.getCostEndData(), costDetail.getCostStartData());
                 costDetail.setAmount(NumberUtil.round(NumberUtil.mul(costDetail.getUnit(), intervalData), 2).doubleValue());
             }
             else if (PricingStrategyEnum.getInstance(cancellationDataDTO.getCostTypeId()).getType() == 3){
                 costDetail.setAmount(cancellationDataDTO.getAmount());
+                costDetail.setType(ICostDetailService.BILL_TYPE_NON_GEN);
+                costDetail.setCostType(costTypeService.add(cancellationDataDTO.getName()).getId());
             }
             costDetailService.insertIgnoreNull(costDetail);
             totalAmount = NumberUtil.add(totalAmount, costDetail.getAmount().doubleValue());
@@ -98,9 +103,10 @@ public class CancellationBill extends AbstractBill{
 
     @Override
     protected void hook(){
+        //修改租住状态
         RentalDetailDTO rentalInfo = new RentalDetailDTO();
         rentalInfo.setId(costDetailBO.getRentalId());
-        rentalInfo.setStatus(2);
+        rentalInfo.setStatus(RentalStatus.STATUS_CANCEL);
         rentalInfoService.updateIgnoreNull(rentalInfo);
     }
 }

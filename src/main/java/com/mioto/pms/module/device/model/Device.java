@@ -1,12 +1,10 @@
 package com.mioto.pms.module.device.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @author lizhicai
@@ -54,13 +52,14 @@ public class Device implements Serializable {
     @ApiModelProperty(value = "保价")
     private Double price;
 
-    @ApiModelProperty(value = "最近抄表数据")
-    private String lastData;
-
-    @ApiModelProperty (value = "最近上线时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date lastTime;
+    @ApiModelProperty(value = "开合闸状态 0-合闸 1-断闸")
+    private int onOffStatus;
 
     @ApiModelProperty(value = "房东id")
     private Integer userId;
+    @ApiModelProperty(value = "转换器地址")
+    private String converterAddress;
+    @ApiModelProperty(value = "设备序号")
+    private Integer line;
+
 }

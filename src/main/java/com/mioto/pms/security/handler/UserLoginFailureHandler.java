@@ -4,6 +4,8 @@ package com.mioto.pms.security.handler;
 
 import com.mioto.pms.result.ResultData;
 import com.mioto.pms.result.SystemTip;
+import com.mioto.pms.security.PhoneValidException;
+import com.mioto.pms.security.VerCodeException;
 import com.mioto.pms.utils.ResultUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -44,6 +46,10 @@ public class UserLoginFailureHandler implements AuthenticationFailureHandler {
             systemTip = SystemTip.USERNAME_PASSWORD_ERROR;
         } else if (e instanceof DisabledException) {
             systemTip = SystemTip.USER_DISABLED;
+        } else if (e instanceof VerCodeException){
+            systemTip = SystemTip.CODE_ERROR;
+        } else if (e instanceof PhoneValidException){
+            systemTip = SystemTip.PHONE_EXIST;
         }
 
         ResultUtil.responseJson(httpServletResponse, ResultData.result(systemTip));

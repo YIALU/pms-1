@@ -1,5 +1,6 @@
 package com.mioto.pms.module.meter.dao;
 
+import com.mioto.pms.module.meter.model.MeterData;
 import com.mioto.pms.module.meter.model.MeterReading;
 import com.mioto.pms.module.meter.model.RoomMeterReading;
 import org.apache.ibatis.annotations.Param;
@@ -60,4 +61,12 @@ public interface MeterReadingDao {
     MeterReading findByRentalId(String rentalId);
 
     List<RoomMeterReading> findRentingMeterReadings();
+
+    int saveMeterData(@Param("meterData") MeterData meterData,@Param("tableName")String tableName);
+
+    double findDataByDeviceId(@Param("deviceId")int deviceId,@Param("tableName") String tableName);
+
+    MeterData findLastData(@Param("tableName")String tableName,@Param("deviceId") int deviceId);
+
+    int updateMeterData(@Param("meterData")MeterData meterData,@Param("tableName") String tableName);
 }

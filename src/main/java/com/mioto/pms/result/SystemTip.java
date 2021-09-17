@@ -26,6 +26,9 @@ public enum SystemTip {
     USER_LOCKED("11005", "用户被冻结"),
     USER_DISABLED("11007", "用户被禁用"),
     MINI_USER_NOT_EXIST("11008", "小程序用户不存在"),
+    SEND_SMS_CODE_FAIL("11009","发送验证码失败"),
+    CODE_ERROR("11010","验证码错误"),
+    PHONE_EXIST("11011","手机号不存在"),
 
     //文件上传下载
     FILE_NOT_EXIST("12000","文件不存在"),
@@ -47,12 +50,15 @@ public enum SystemTip {
 
     ZIP_DEVICE_EMPTY("16000","设备为空,打包失败"),
     EXPORT_ERROR("16001","暂不支持的导出类型"),
+    FOCUS_LIN_REPEAT_ERROR("16003","同一采集器下的设备序号不能重复"),
 
     ADDRESS_EMPTY("17000","省、市、区、地址不能为空"),
     PROVINCE_NOT_EXIST("17001","省不存在"),
     CITY_NOT_EXIST("17002","市不存在"),
     DISTRICT_NOT_EXIST("17003","区不存在"),
-    PROVINCE_CITY_RELATION_ERROR("17004","省、市、区关系错误");
+    PROVINCE_CITY_RELATION_ERROR("17004","省、市、区关系错误"),
+
+    CMD_SEND_FAIL("18000","指令发送失败");
 
     private String code;
     private String desc;

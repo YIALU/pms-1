@@ -22,7 +22,8 @@ public class WxCancellationVO{
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @ApiModelProperty(value = "入住时间")
     private Date rentalTime;
-
+    @ApiModelProperty(value = "房间id")
+    private String roomId;
     @ApiModelProperty(value = "租户列表")
     private List<TenantInfo> tenantInfoList;
 

@@ -280,6 +280,13 @@ public class BaseUtil {
         return billNumbers;
     }
 
+    /**
+     * 生成验证码
+     * @return
+     */
+    public static String genVerCode(){
+        return RandomUtil.randomNumbers(4);
+    }
 
     /**
      * 计算签名值

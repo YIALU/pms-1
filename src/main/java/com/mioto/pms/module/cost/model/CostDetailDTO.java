@@ -31,4 +31,8 @@ public class CostDetailDTO {
     private Double unit;
     @ApiModelProperty(value = "修改类型 1-新增 2-修改 3-删除 如果是删除只需传id和editType字段",required = true)
     private Integer editType;
+    @ApiModelProperty(value = "费用名称")
+    private String name;
+    @ApiModelProperty(value = "账单类型 1-系统生成  2-手动添加")
+    private Integer type;
 }

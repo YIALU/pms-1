@@ -1,0 +1,28 @@
+<datas path="afn1ch">
+    <!-- <data name="Control_BreakDisconnect" path="f26">
+        <remark>遥控跳闸</remark>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>30</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>0</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+    </data>
+
+    <data name="Control_BreakConnect" path="f27">
+        <remark>遥控合闸</remark>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>30</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+    </data> -->
+
+</datas>

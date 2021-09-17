@@ -1,10 +1,10 @@
 package com.mioto.pms.module.notify.model;
 
-import java.io.Serializable;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+import java.io.Serializable;
 /**
  * 催收通知实体
  * @author qinxj
@@ -20,7 +20,7 @@ public class OverdueNotify implements Serializable{
     @ApiModelProperty(value = "id")
     private Integer id;
 
-    @ApiModelProperty(value = "是否立即短信通知 0-否 1-是")
+    @ApiModelProperty(value = "是否短信通知 0-否 1-是")
     private Integer immediateNotice;
 
     @ApiModelProperty(value = "是否逾期催收 0-否 1-是")

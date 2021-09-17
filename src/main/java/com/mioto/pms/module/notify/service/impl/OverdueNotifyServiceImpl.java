@@ -1,6 +1,7 @@
 package com.mioto.pms.module.notify.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.mioto.pms.module.notify.model.OverdueNotifyBO;
 import org.springframework.stereotype.Service;
 
 import com.mioto.pms.module.notify.dao.OverdueNotifyDao;
@@ -70,5 +71,10 @@ public class OverdueNotifyServiceImpl implements IOverdueNotifyService{
             return new OverdueNotify();
         }
         return overdueNotify;
+    }
+
+    @Override
+    public List<OverdueNotifyBO> findByCostInfoIds(String[] costInfoIds) {
+        return overdueNotifyDao.findByCostInfoIds(costInfoIds);
     }
 }

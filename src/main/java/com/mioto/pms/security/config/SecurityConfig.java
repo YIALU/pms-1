@@ -3,6 +3,7 @@ package com.mioto.pms.security.config;
 
 import com.mioto.pms.security.filter.BasicAuthenticationProcessingFilter;
 import com.mioto.pms.security.filter.JwtAuthenticationTokenFilter;
+import com.mioto.pms.security.filter.VerCodeAuthProcessingFilter;
 import com.mioto.pms.security.handler.UserAuthAccessDeniedHandler;
 import com.mioto.pms.security.handler.UserAuthenticationEntryPointHandler;
 import com.mioto.pms.security.handler.UserLogoutSuccessHandler;
@@ -14,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
@@ -41,8 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Autowired
     private UserAuthenticationEntryPointHandler userAuthenticationEntryPointHandler;
-    @Autowired
-    private BasicAuthenticationProcessingFilter basicAuthenticationProcessingFilter;
+
 
     @Value("${http.antMatchers}")
     private String antMatchers;
@@ -77,17 +78,32 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 //.and()
                 //.rememberMe();
         // 基于Token不需要session
-        //http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // 禁用缓存
-        //http.headers().cacheControl();
+        http.headers().cacheControl();
         // 添加JWT过滤器
         http.addFilter(new JwtAuthenticationTokenFilter(authenticationManager()));
-        http.addFilterBefore(basicAuthenticationProcessingFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(basicAuthenticationProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(verCodeAuthProcessingFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public BasicAuthenticationProcessingFilter basicAuthenticationProcessingFilter() throws Exception {
+        BasicAuthenticationProcessingFilter verCodeAuthProcessingFilter =new BasicAuthenticationProcessingFilter();
+        verCodeAuthProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+        return verCodeAuthProcessingFilter;
+    }
+
+    @Bean
+    public VerCodeAuthProcessingFilter verCodeAuthProcessingFilter() throws Exception {
+        VerCodeAuthProcessingFilter verCodeAuthProcessingFilter =new VerCodeAuthProcessingFilter();
+        verCodeAuthProcessingFilter.setAuthenticationManager(authenticationManagerBean());
+        return verCodeAuthProcessingFilter;
     }
 }

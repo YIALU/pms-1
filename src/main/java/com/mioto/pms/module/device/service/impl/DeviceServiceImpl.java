@@ -1,11 +1,16 @@
 package com.mioto.pms.module.device.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.mioto.pms.exception.BasicException;
 import com.mioto.pms.module.device.dao.DeviceDao;
 import com.mioto.pms.module.device.model.Device;
 import com.mioto.pms.module.device.model.DeviceDTO;
 import com.mioto.pms.module.device.service.IDeviceService;
 import com.mioto.pms.module.file.FileHelper;
 import com.mioto.pms.module.room.model.RoomDeviceRelation;
+import com.mioto.pms.netty.ChannelUtil;
+import com.mioto.pms.result.SystemTip;
 import com.mioto.pms.utils.BaseUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author lizhicai
@@ -43,6 +49,11 @@ public class DeviceServiceImpl implements IDeviceService {
     public int insert(Device device) throws IOException {
         //生成设备二维码
         device.setUserId(BaseUtil.getLoginUser().getId());
+        if (StrUtil.isNotEmpty(device.getFocus())){
+            if (ObjectUtil.isNotEmpty(deviceDao.findByLineAndfocus(device.getLine(),device.getFocus()))){
+                throw new BasicException(SystemTip.FOCUS_LIN_REPEAT_ERROR);
+            }
+        }
         int add = deviceDao.add(device);
         fileHelper.createCode(device);
         return add;
@@ -53,7 +64,13 @@ public class DeviceServiceImpl implements IDeviceService {
     @Override
     public List<DeviceDTO> findList(Device device,String siteId) {
         device.setUserId(BaseUtil.getLogonUserId());
-        return deviceDao.findList(device,siteId);
+        List<DeviceDTO> deviceDTOList = deviceDao.findList(device,siteId);
+        for (DeviceDTO deviceDTO : deviceDTOList) {
+            if (ChannelUtil.containsKey(deviceDTO.getFocus())){
+                deviceDTO.setStatus(1);
+            }
+        }
+        return deviceDTOList;
     }
 
     /**
@@ -61,6 +78,11 @@ public class DeviceServiceImpl implements IDeviceService {
      */
     @Override
     public int updateIgnoreNull(Device device) throws IOException {
+        if (StrUtil.isNotEmpty(device.getFocus()) && ObjectUtil.isNotEmpty(device.getLine())){
+            if (ObjectUtil.isNotEmpty(deviceDao.findByLineAndfocus(device.getLine(),device.getFocus()))){
+                throw new BasicException(SystemTip.FOCUS_LIN_REPEAT_ERROR);
+            }
+        }
         fileHelper.createCode(device);
         return deviceDao.updateIgnoreNull(device);
     }
@@ -114,5 +136,25 @@ public class DeviceServiceImpl implements IDeviceService {
     public void zipQrCode(Device device, String siteId, HttpServletResponse response) {
         File file = fileHelper.zipQrCode(findList(device,siteId));
         fileHelper.downloadZip(response,file);
+    }
+
+    @Override
+    public List<Device> findByRoomId(String roomId) {
+        return deviceDao.findByRoomId(roomId);
+    }
+
+    @Override
+    public List<Device> findByFocus(Set<String> focus) {
+        return deviceDao.findByFocus(focus);
+    }
+
+    @Override
+    public Device findByLineAndfocus(int line, String focus) {
+        return deviceDao.findByLineAndfocus(line,focus);
+    }
+
+    @Override
+    public int updateOnOffStatusByDeviceIdAndFocus(String deviceId, String focus, int onOffStatus) {
+        return deviceDao.updateOnOffStatusByDeviceIdAndFocus(deviceId,focus,onOffStatus);
     }
 }

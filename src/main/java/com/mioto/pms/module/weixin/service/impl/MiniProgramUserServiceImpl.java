@@ -190,6 +190,6 @@ public class MiniProgramUserServiceImpl implements IMiniProgramUserService{
 
     @Override
     public PersonalCenterVO getPersonalCenterData(String date) {
-        return miniProgramUserDao.findPersonalCenterData(date,11);
+        return miniProgramUserDao.findPersonalCenterData(date,BaseUtil.getLogonUserId());
     }
 }

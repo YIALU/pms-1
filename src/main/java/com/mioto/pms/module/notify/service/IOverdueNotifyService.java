@@ -1,6 +1,8 @@
 package com.mioto.pms.module.notify.service;
 
 import com.mioto.pms.module.notify.model.OverdueNotify;
+import com.mioto.pms.module.notify.model.OverdueNotifyBO;
+
 import java.util.List;
 
 /**
@@ -70,4 +72,6 @@ public interface IOverdueNotifyService{
     int batchDelete(Integer[] ids);
 
     OverdueNotify find();
+
+    List<OverdueNotifyBO> findByCostInfoIds(String[] costInfoIds);
 }

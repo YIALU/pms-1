@@ -15,13 +15,14 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ApiModel(value = "退租办理对象")
+@ApiModel(value = "查询退租办理对象")
 public class CancellationVO {
     @ApiModelProperty(value = "租户姓名")
     private String tenantName;
     @ApiModelProperty(value = "证件号码")
     private String idCard;
-
+    @ApiModelProperty(value = "房间id")
+    private String roomId;
     @ApiModelProperty(value = "本月子账单")
     private List<CostDetailListVO> costDetailList;
 }

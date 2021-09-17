@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author lizhicai
@@ -62,4 +63,10 @@ public interface DeviceDao {
     List<Device> findByRoomId(String roomId);
 
     int clearRoomRelation(String roomId);
+
+    List<Device> findByFocus(Set<String> focus);
+
+    Device findByLineAndfocus(@Param("line")int line, @Param("focus")String focus);
+
+    int updateOnOffStatusByDeviceIdAndFocus(@Param("deviceId")String deviceId, @Param("focus")String focus, @Param("onOffStatus")int onOffStatus);
 }

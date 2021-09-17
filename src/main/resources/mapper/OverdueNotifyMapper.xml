@@ -115,5 +115,17 @@
     <select id="find" resultMap="overdueNotifyResultMap">
         SELECT <include refid="overdueNotifyAliasColumns"/> FROM overdue_notify t
     </select>
+    <select id="findByCostInfoIds" resultType="com.mioto.pms.module.notify.model.OverdueNotifyBO">
+        select d.name,d.phone,e.room_name from rental_info a
+        left join cost_info b on a.id = b.rental_id
+        left join rental_tenant c on a.id = c.rental_id
+        left join tenant_info d on c.tenant_id = d.id
+        left join room e on a.room_id = e.id
+        where b.id in
+        <foreach collection="costInfoIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        and b.pay_status = 0
+    </select>
 
 </mapper>

@@ -1,6 +1,7 @@
 package com.mioto.pms.module.notify.dao;
 
 import com.mioto.pms.module.notify.model.OverdueNotify;
+import com.mioto.pms.module.notify.model.OverdueNotifyBO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import java.util.List;
@@ -72,4 +73,6 @@ public interface OverdueNotifyDao{
     int batchDelete(Integer[] ids);
 
     OverdueNotify find();
+
+    List<OverdueNotifyBO> findByCostInfoIds(String[] costInfoIds);
 }

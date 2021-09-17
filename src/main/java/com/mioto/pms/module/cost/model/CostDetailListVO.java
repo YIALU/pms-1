@@ -29,10 +29,10 @@ public class CostDetailListVO implements Comparable<CostDetailListVO>{
     private Double startData;
     @ApiModelProperty(value = "账单结束数据")
     private Double endData;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "开始日期")
     private Date startDate;
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "结束日期")
     private Date endDate;
     @ApiModelProperty(value = "总金额")

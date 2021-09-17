@@ -1,6 +1,7 @@
 package com.mioto.pms.module.cost.service;
 
 import com.mioto.pms.module.cost.model.CostDetail;
+import com.mioto.pms.module.cost.model.CostDetailListVO;
 import com.mioto.pms.module.cost.model.EditCostDetailDTO;
 
 import java.util.List;
@@ -110,6 +111,6 @@ public interface ICostDetailService{
      * @param costInfoId
      * @return
      */
-    List<CostDetail> findListByCostInfoId(String costInfoId);
+    List<CostDetailListVO> findListByCostInfoId(String costInfoId);
 
 }

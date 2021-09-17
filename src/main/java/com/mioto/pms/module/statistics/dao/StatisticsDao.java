@@ -1,9 +1,6 @@
 package com.mioto.pms.module.statistics.dao;
 
-import com.mioto.pms.module.statistics.model.PaymentProgressVO;
-import com.mioto.pms.module.statistics.model.PaymentVO;
-import com.mioto.pms.module.statistics.model.RoomInfoStatisticsVO;
-import com.mioto.pms.module.statistics.model.UnpairFeeCompletionVO;
+import com.mioto.pms.module.statistics.model.*;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
@@ -51,4 +48,6 @@ public interface StatisticsDao {
     List<UnpairFeeCompletionVO> unpairFeeCompletion(@Param("userId") Integer userId, @Param("month") String month);
 
     PaymentVO paymentCount(@Param("logonUserId") Integer logonUserId, @Param("type")int type);
+
+    List<EnergyVO> energy(EnergyBO energyBO);
 }

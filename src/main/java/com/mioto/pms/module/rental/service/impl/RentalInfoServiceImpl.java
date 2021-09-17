@@ -20,11 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toCollection;
 
 /**
  *
@@ -168,13 +168,14 @@ public class RentalInfoServiceImpl implements IRentalInfoService{
         return cancellationVO;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public int cancellation(CancellationDTO cancellationDTO) {
-        //退租办理
+    public String[] findCancelIdsByBillNumbers(String[] billNumbers) {
+        return rentalInfoDao.findCancelIdsByBillNumbers(billNumbers);
+    }
 
-
-        return 0;
+    @Override
+    public int updateStatusBatch(String[] rentalIds, int status) {
+        return rentalInfoDao.updateStatusBatch(rentalIds,status);
     }
 
     /**
@@ -185,31 +186,33 @@ public class RentalInfoServiceImpl implements IRentalInfoService{
     private List<CostDetailListVO> builderCostDetailList(List<CostDetailListVO> costDetailList,String rentalId){
         List<CostDetailListVO> newCostDetailList = new ArrayList<>(costDetailList.size());
         CostDetailListVO newCostDetailListVO;
-        Date currentDate = new Date();
+        /*Date currentDate = new Date();
         costDetailList = costDetailList.stream().sorted(Comparator.comparing(CostDetailListVO::getEndDate).reversed()).collect(
                 collectingAndThen(toCollection(() -> new TreeSet<>(Comparator.comparing(CostDetailListVO::getCostTypeId))),
-                        ArrayList::new));
+                        ArrayList::new));*/
         List<Price> priceList = priceService.findByRentalId(rentalId);
         Map<String,Price> priceMap = priceList.stream().collect(Collectors.toMap(Price::getType,Price::get));
         for (CostDetailListVO costDetailListVO : costDetailList) {
-            if (PricingStrategyEnum.getInstance(costDetailListVO.getCostTypeId()).getType() == 2){
-                //忽略已支付账单
-                if (costDetailListVO.getPayStatus() == 1){
-                    continue;
-                }
-                newCostDetailList.add(costDetailListVO);
-            }else {
+            if (PricingStrategyEnum.getInstance(costDetailListVO.getCostTypeId()).getType() == 1){
                 //生成虚拟账单 - 提交退租办理后，生成对应账单
                 newCostDetailListVO = costDetailListVO;
                 newCostDetailListVO.setStartData(costDetailListVO.getEndData());
                 newCostDetailListVO.setStartDate(costDetailListVO.getEndDate());
                 newCostDetailListVO.setEndData(null);
-                newCostDetailListVO.setEndDate(currentDate);
+                newCostDetailListVO.setEndDate(null);
                 newCostDetailListVO.setAmount(null);
                 newCostDetailListVO.setChildBillNumber("");
                 newCostDetailListVO.setPayStatus(0);
                 newCostDetailListVO.setUnit(priceMap.get(costDetailListVO.getCostTypeId()).getUnitPrice());
                 newCostDetailList.add(newCostDetailListVO);
+            }else if (PricingStrategyEnum.getInstance(costDetailListVO.getCostTypeId()).getType() == 2) {
+                continue;
+            }else {
+                //忽略已支付账单
+                if (costDetailListVO.getPayStatus() == 1){
+                    continue;
+                }
+                newCostDetailList.add(costDetailListVO);
             }
         }
         return newCostDetailList;

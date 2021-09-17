@@ -1,6 +1,9 @@
 package com.mioto.pms.module.meter.service.impl;
 
+import cn.hutool.core.util.StrUtil;
+import com.mioto.pms.module.device.DeviceTypeEnum;
 import com.mioto.pms.module.meter.dao.MeterReadingDao;
+import com.mioto.pms.module.meter.model.MeterData;
 import com.mioto.pms.module.meter.model.MeterReading;
 import com.mioto.pms.module.meter.model.RoomMeterReading;
 import com.mioto.pms.module.meter.service.MeterReadingService;
@@ -71,7 +74,42 @@ public class MeterReadingServiceImpl implements MeterReadingService {
     }
 
     @Override
+    public MeterReading findByRoomId(String roomId) {
+        return meterReadingDao.findByRoomId(roomId);
+    }
+
+    @Override
     public List<RoomMeterReading> findRentingMeterReadings() {
         return meterReadingDao.findRentingMeterReadings();
+    }
+
+    @Override
+    public MeterData findLastData(String deviceType,int deviceId) {
+        String tableName = DeviceTypeEnum.getInstance(deviceType).getTableName();
+        if (StrUtil.isNotEmpty(tableName)) {
+            return meterReadingDao.findLastData(tableName,deviceId);
+        }
+        return null;
+    }
+
+    @Override
+    public int saveMeterData(MeterData meterData) {
+        String tableName = DeviceTypeEnum.getInstance(meterData.getDeviceType()).getTableName();
+        if (StrUtil.isNotEmpty(tableName)) {
+            if (meterData.getId() > 0){
+                return meterReadingDao.updateMeterData(meterData, tableName);
+            }
+            return meterReadingDao.saveMeterData(meterData, tableName);
+        }
+        return 0;
+    }
+
+    @Override
+    public double findDataByDeviceIdAndType(int deviceId, String deviceType) {
+        String tableName = DeviceTypeEnum.getInstance(deviceType).getTableName();
+        if (StrUtil.isNotEmpty(tableName)) {
+            return meterReadingDao.findDataByDeviceId(deviceId, tableName);
+        }
+        return 0;
     }
 }

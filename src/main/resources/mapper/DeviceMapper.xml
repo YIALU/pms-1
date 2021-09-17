@@ -15,8 +15,9 @@
         <result property="desc" column="t_desc"/>
         <result property="roomId" column="t_roomId"/>
         <result property="price" column="t_price"/>
-        <result property="lastData" column="t_last_data"/>
-        <result property="lastTime" column="t_last_time"/>
+        <result property="line" column="t_line"/>
+        <result property="converterAddress" column="t_converter_address"/>
+        <result property="onOffStatus" column="t_on_off_status"/>
     </resultMap>
 
     <resultMap id="deviceDTOResultMap" type="com.mioto.pms.module.device.model.DeviceDTO" extends="deviceResultMap">
@@ -28,8 +29,9 @@
         t.device_model AS t_device_model, t.focus AS t_focus,
         t.`name` AS t_name, t.device_type_id AS t_device_type_id,
         t.factory AS t_factory, t.code AS t_code, t.`desc` AS t_desc,
-        t.room_id AS t_roomId, t.price AS t_price,
-        t.last_data as t_last_data, t.last_time as t_last_time
+        t.room_id AS t_roomId, t.price AS t_price,t.line as t_line,
+        t.converter_address as t_converter_address,
+        t.on_off_status as t_on_off_status
     </sql>
 
     <insert id="add" keyProperty="id" useGeneratedKeys="true">
@@ -68,6 +70,12 @@
             <if test="userId != null">
                 `user_id`,
             </if>
+            <if test="converterAddress != null">
+                `converter_address`,
+            </if>
+            <if test="line != null">
+                `line`,
+            </if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -103,6 +111,12 @@
             </if>
             <if test="userId != null">
                 #{userId},
+            </if>
+            <if test="converterAddress != null">
+                #{converterAddress},
+            </if>
+            <if test="line != null">
+                #{line},
             </if>
         </trim>
 
@@ -182,16 +196,19 @@
                 `device_id` = #{deviceId},
             </if>
             <if test="roomId != null ">
-                room_id= #{roomId}
+                room_id= #{roomId},
             </if>
             <if test="price != null ">
-               price= #{price}
+               price= #{price},
             </if>
-            <if test="lastData != null ">
-                last_data= #{lastData}
+            <if test="onOffStatus != null ">
+                on_off_status= #{onOffStatus},
             </if>
-            <if test="lastTime != null ">
-                last_time= #{lastTime}
+            <if test="converterAddress != null">
+                converter_address=#{converterAddress},
+            </if>
+            <if test="line != null">
+                line=#{line},
             </if>
         </trim>
         where id = #{id}
@@ -218,6 +235,9 @@
 
     <update id="clearRoomRelation">
         update device_detail set room_id = '' where room_id = #{roomId}
+    </update>
+    <update id="updateOnOffStatusByDeviceIdAndFocus">
+        update device_detail set on_off_status=#{onOffStatus} where device_id = #{deviceId} and focus = #{focus}
     </update>
 
     <select id="find" resultMap="deviceResultMap">
@@ -256,6 +276,9 @@
             <if test="price != null ">
                 and t.price= #{price}
             </if>
+            <if test="userId != null">
+                and t.user_id=#{userId}
+            </if>
         </trim>
     </select>
 
@@ -266,6 +289,13 @@
     <select id="findByRoomId" resultMap="deviceResultMap">
         SELECT <include refid="deviceAliasColumns"/> FROM device_detail t where t.room_id= #{roomId}
     </select>
-
-
+    <select id="findByFocus" resultMap="deviceResultMap">
+        SELECT <include refid="deviceAliasColumns"/> FROM device_detail t where t.focus in
+        <foreach collection="focus" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="findByLineAndfocus" resultMap="deviceResultMap">
+        SELECT <include refid="deviceAliasColumns"/> FROM device_detail t where t.focus = #{focus} and t.line = #{line}
+    </select>
 </mapper>

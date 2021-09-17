@@ -231,10 +231,11 @@
 
     <select id="findCostDetailListVO" resultType="com.mioto.pms.module.cost.model.CostDetailListVO">
         select a.id,a.amount,a.bill_child_number childBillNumber,a.cost_start_data startData,a.cost_type costTypeId,
-        a.cost_end_data endData,a.cost_start_time startDate,a.cost_end_time endDate,a.unit,b.`name` costType,
-        a.pay_status payStatus,a.type
+        a.cost_end_data endData,a.cost_start_time startDate,a.cost_end_time endDate,a.unit,a.pay_status payStatus,a.type,
+        case when a.type = 1 then b.`name` else c.`name` end costType
         from cost_detail a
-        left join dictionary b on a.cost_type = b.id
+        left join dictionary b on a.cost_type = b.id and a.type = 1
+        left join cost_type c on a.cost_type = c.id and a.type = 2
         where a.cost_info_id = #{costInfoId}
     </select>
 
@@ -252,11 +253,5 @@
     </select>
     <select id="findCountByCostId" resultType="java.lang.Integer">
         select count(1) from cost_detail where cost_info_id = #{costId}
-    </select>
-
-    <select id="findListByCostInfoId" resultMap="costDetailResultMap">
-        select <include refid="costDetailAliasColumns"/> FROM cost_detail t
-        where t.cost_info_id = #{costInfoId}
-        order by t.bill_child_number
     </select>
 </mapper>

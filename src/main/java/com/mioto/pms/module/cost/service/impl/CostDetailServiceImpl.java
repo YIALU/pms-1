@@ -1,12 +1,15 @@
 package com.mioto.pms.module.cost.service.impl;
 
 import cn.hutool.core.util.StrUtil;
+import com.mioto.pms.module.EditType;
 import com.mioto.pms.module.cost.dao.CostDetailDao;
 import com.mioto.pms.module.cost.model.CostDetail;
 import com.mioto.pms.module.cost.model.CostDetailDTO;
+import com.mioto.pms.module.cost.model.CostDetailListVO;
 import com.mioto.pms.module.cost.model.EditCostDetailDTO;
 import com.mioto.pms.module.cost.service.ICostDetailService;
 import com.mioto.pms.module.cost.service.ICostInfoService;
+import com.mioto.pms.module.cost.service.ICostTypeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +23,8 @@ import java.util.List;
  */
 @Service("costDetailService")
 public class CostDetailServiceImpl implements ICostDetailService{
-
+    @Resource
+    private ICostTypeService costTypeService;
     @Resource
     private CostDetailDao costDetailDao;
     @Resource
@@ -80,16 +84,18 @@ public class CostDetailServiceImpl implements ICostDetailService{
     @Override
     public int batchEdit(EditCostDetailDTO editCostDetailDTO) {
         editCostDetailDTO.getCostDetailDTOList().stream().forEach(costDetailDTO -> {
-            if (costDetailDTO.getEditType() == 1){
+            if (costDetailDTO.getEditType() == EditType.EDIT_INSERT){
                 CostDetail costDetail = builder(costDetailDTO,editCostDetailDTO.getId());
                 int count = costDetailDao.findCountByCostId(editCostDetailDTO.getId());
+                costDetail.setType(BILL_TYPE_NON_GEN);
                 costDetail.setBillChildNumber(editCostDetailDTO.getBillNumber() + StrUtil.DASHED + ++count);
                 costDetailDao.insertIgnoreNull(costDetail);
-            }else if (costDetailDTO.getEditType() == 2){
+            }else if (costDetailDTO.getEditType() == EditType.EDIT_UPDATE){
                 CostDetail costDetail = builder(costDetailDTO,editCostDetailDTO.getId());
                 costDetail.setId(costDetailDTO.getId());
+                costDetail.setType(costDetailDTO.getType());
                 costDetailDao.updateIgnoreNull(costDetail);
-            }else if (costDetailDTO.getEditType() == 3){
+            }else if (costDetailDTO.getEditType() == EditType.EDIT_DELETE){
                 costDetailDao.deleteByColumn("id",costDetailDTO.getId());
             }else {
                 throw new RuntimeException("修改类型参数传递错误，必须是1、2、3");
@@ -111,19 +117,18 @@ public class CostDetailServiceImpl implements ICostDetailService{
     }
 
     @Override
-    public List<CostDetail> findListByCostInfoId(String costInfoId) {
-        return costDetailDao.findListByCostInfoId(costInfoId);
+    public List<CostDetailListVO> findListByCostInfoId(String costInfoId) {
+        return costDetailDao.findCostDetailListVO(costInfoId);
     }
 
     private CostDetail builder(CostDetailDTO costDetailDTO, String costId){
         CostDetail costDetail = new CostDetail();
-        costDetail.setType(BILL_TYPE_NON_GEN);
         costDetail.setCostStartTime(costDetailDTO.getStartDate());
         costDetail.setCostEndTime(costDetailDTO.getEndDate());
         costDetail.setCostStartData(costDetailDTO.getStartData());
         costDetail.setCostEndData(costDetailDTO.getEndData());
         costDetail.setAmount(costDetailDTO.getAmount());
-        costDetail.setCostType(costDetailDTO.getCostTypeId());
+        costDetail.setCostType(costTypeService.add(costDetailDTO.getName()).getId());
         costDetail.setCostInfoId(costId);
         costDetail.setUnit(costDetailDTO.getUnit());
         return costDetail;

@@ -29,5 +29,6 @@ public class CancellationDataDTO {
     private Date startDate;
     @ApiModelProperty(value = "附加费金额")
     private Double amount;
-
+    @ApiModelProperty(value = "附加费名称")
+    private String name;
 }

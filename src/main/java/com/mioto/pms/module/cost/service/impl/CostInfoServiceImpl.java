@@ -126,14 +126,10 @@ public class CostInfoServiceImpl implements ICostInfoService{
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void insertDetail(String roomId,boolean firstInsert) {
+    public void insertDetail(String roomId) {
         List<RentalInfo> rentalInfoList = rentalInfoService.findByRoomIdAndStatus(roomId,1);
         if (CollUtil.isNotEmpty(rentalInfoList) && rentalInfoList.size() == 1) {
-            if (firstInsert){
-                firstInsertCostInfo(rentalInfoList.get(0));
-                return;
-            }
-            insertCostInfo(rentalInfoList.get(0));
+           firstInsertCostInfo(rentalInfoList.get(0));
         }
     }
 
@@ -309,52 +305,6 @@ public class CostInfoServiceImpl implements ICostInfoService{
             return;
         }
         throw new BasicException(SystemTip.PRICE_METER_EMPTY);
-    }
-
-    /**
-     * 抄表指令发送成功后，生成账单信息
-     * @param rentalInfo
-     */
-    private void insertCostInfo(RentalInfo rentalInfo){
-        log.info("抄表指令发送成功，开始生成账单信息");
-        //创建总账单
-        CostInfo costInfo = builderCostInfo(rentalInfo.getId());
-        List<Price> priceList = priceService.findByRoomId(rentalInfo.getRoomId());
-        if (CollUtil.isNotEmpty(priceList)){
-            //查询抄表时间
-            MeterReading meterReading = meterReadingDao.findByRoomId(rentalInfo.getRoomId());
-            if (ObjectUtil.isNotEmpty(meterReading)){
-                costInfo.setCreateTime(BaseUtil.toDate(meterReading.getDate(),meterReading.getTime()));
-                //子账单计数器
-                int index = 1;
-                //查询最新一条历史账单和动态费用明细
-                CostDetailBO costDetailBO = costInfoDao.findLastCost(costInfo.getRentalId());
-                for (Price price : priceList) {
-                    CostDetail costDetail = builderCostDetail(costInfo,price,index);
-                    PricingStrategyEnum pricingStrategyEnum = PricingStrategyEnum.getInstance(price.getType());
-                    if (pricingStrategyEnum.getType() == 2){
-                        costDetail.setCostStartTime(costInfo.getCreateTime());
-                        costDetail.setCostEndTime(DateUtil.offsetMonth(costInfo.getCreateTime(),1));
-                        costDetail.setAmount(price.getUnitPrice());
-                    }else {
-                        costDetail.setCostStartTime(costDetailBO.getCreateTime());
-                        costDetail.setCostEndTime(costInfo.getCreateTime());
-                        //租住办理后，如果没有自动抄表，取租住办理时的初始数据
-                        //如果有抄表账单数据，取上一次抄表数据
-                        costDetail.setCostStartData(getCostDetailByType(price.getType(),costDetailBO.getCostDetailList()).getCostEndData());
-                        //说明入住后，还没有执行过抄表策略
-                        if (ObjectUtil.isEmpty(costDetail.getCostStartData())){
-                            costDetail.setCostStartData(rentalInitService.findInitVal(price.getType(),rentalInfo.getId()));
-                        }
-                    }
-                    index++;
-                    costDetailService.insertIgnoreNull(costDetail);
-                    log.info("子账单生成成功,账单类型 - {},账单金额 - {},账单编号 - {}",pricingStrategyEnum.name(),costDetail.getAmount(),costDetail.getBillChildNumber());
-                }
-            }
-        }
-        costInfoDao.insertIgnoreNull(costInfo);
-        log.info("主账单生成成功,账单编号 - {}",costInfo.getBillNumber());
     }
 
     private CostInfo builderCostInfo(String rentalId){

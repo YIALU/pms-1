@@ -88,5 +88,12 @@ public interface IRentalInfoService{
 
     WxCancellationVO findWxCancellation(String rentalId);
 
-    int cancellation(CancellationDTO cancellationDTO);
+    /**
+     * 查询主账单id对应正在退租并且已经全部付款的租住id列表
+     * @param billNumbers
+     * @return
+     */
+    String[] findCancelIdsByBillNumbers(String[] billNumbers);
+
+    int updateStatusBatch(String[] rentalIds,int status);
 }

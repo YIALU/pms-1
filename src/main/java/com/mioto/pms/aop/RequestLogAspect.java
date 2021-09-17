@@ -48,7 +48,7 @@ public class RequestLogAspect {
         requestInfo.setClassMethod(String.format("%s.%s", proceedingJoinPoint.getSignature().getDeclaringTypeName(),proceedingJoinPoint.getSignature().getName()));
         requestInfo.setRequestParams(getRequestParamsByJoinPoint(proceedingJoinPoint));
         requestInfo.setTimeCost(System.currentTimeMillis() - start);
-        log.debug("Request Info: {}", JSONUtil.parseObj(requestInfo));
+        log.info("Request Info: {}", JSONUtil.parseObj(requestInfo));
         return result;
     }
 

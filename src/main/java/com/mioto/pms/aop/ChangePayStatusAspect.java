@@ -7,6 +7,8 @@ import com.mioto.pms.module.cost.PayTypeEnum;
 import com.mioto.pms.module.cost.model.CostInfo;
 import com.mioto.pms.module.cost.service.ICostDetailService;
 import com.mioto.pms.module.cost.service.ICostInfoService;
+import com.mioto.pms.module.rental.RentalStatus;
+import com.mioto.pms.module.rental.service.IRentalInfoService;
 import com.mioto.pms.result.ResultData;
 import com.mioto.pms.result.SystemTip;
 import com.mioto.pms.utils.BaseUtil;
@@ -37,6 +39,9 @@ public class ChangePayStatusAspect {
     private ICostInfoService costInfoService;
     @Resource
     private ICostDetailService costDetailService;
+    @Resource
+    private IRentalInfoService rentalInfoService;
+
 
     @Pointcut("@annotation(com.mioto.pms.anno.PayStatusChange)")
     public void changePayStatusAspect(){}
@@ -55,9 +60,10 @@ public class ChangePayStatusAspect {
                 if (StrUtil.isEmpty(costType)){
                     costInfoService.batchChangePayStatus(billNumbers);
                 }else {
-                    changePayStatus(billNumbers);
+                    billNumbers = changePayStatus(billNumbers);
                 }
                 costDetailService.batchChangePayStatus(billNumbers,costType);
+                changeRentalStatus(billNumbers);
                 return;
             }
             String[] billNumbers = null;
@@ -70,7 +76,8 @@ public class ChangePayStatusAspect {
             billNumbers = Arrays.stream(billNumbers)
                     .map(billNumber -> billNumber.substring(0,billNumber.indexOf(StrUtil.DASHED)))
                     .collect(Collectors.toSet()).stream().toArray(String[]::new);
-            changePayStatus(billNumbers);
+            billNumbers = changePayStatus(billNumbers);
+            changeRentalStatus(billNumbers);
         }
     }
 
@@ -78,12 +85,32 @@ public class ChangePayStatusAspect {
      * 修改主账单支付状态
      * @param billNumbers
      */
-    private void changePayStatus(String[] billNumbers){
+    private String[] changePayStatus(String[] billNumbers){
         List<CostInfo> costInfoList = costInfoService.findByBillNumbers(billNumbers);
         billNumbers = costInfoList.stream().filter(costInfo -> costInfo.getPayStatus() == 1)
                 .map(costInfo -> costInfo.getBillNumber()).toArray(String[]::new);
         if (ArrayUtil.isNotEmpty(billNumbers)) {
             costInfoService.batchChangePayStatus(billNumbers);
         }
+        return billNumbers;
     }
+
+    /**
+     * 查询账单对应的租住id，如果该id下所有的款已付清，并且租住状态未正在退租中，修改改租住状态为历史租住
+     * @param billNumbers 已付款主账单编号
+     */
+    private void changeRentalStatus(String[] billNumbers){
+        if (ArrayUtil.isNotEmpty(billNumbers)) {
+            String[] rentalIds = rentalInfoService.findCancelIdsByBillNumbers(billNumbers);
+            if (ArrayUtil.isNotEmpty(rentalIds)){
+                rentalIds = Arrays.stream(rentalIds)
+                        .filter(StrUtil::isNotEmpty)
+                        .toArray(String[]::new);
+                if (ArrayUtil.isNotEmpty(rentalIds)){
+                    rentalInfoService.updateStatusBatch(rentalIds, RentalStatus.STATUS_HISTORY);
+                }
+            }
+        }
+    }
+
 }

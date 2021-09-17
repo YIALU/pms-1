@@ -36,9 +36,6 @@ public class RentalInfoController {
     @Resource
     private CancellationBill cancellationBill;
 
-    /**
-     * 分页查询列表
-     */
     @GetMapping("/pager")
     @ApiOperation(value="分页查询房屋出租信息",notes = "出租管理列表查询",response = RentalListVO.class)
     public ResultData pager (RentalDTO rentalDTO, BasePager basePager){
@@ -51,9 +48,6 @@ public class RentalInfoController {
         return ResultData.success(result);
     }
 
-    /**
-     * 查询
-     */
     @GetMapping("/{id}")
     @ApiOperation(value="通过id查询房屋出租信息",response = RentalDetailVO.class)
     public ResultData findById (@PathVariable("id")String id){
@@ -83,9 +77,6 @@ public class RentalInfoController {
                 .orElseThrow(() -> new BasicException(SystemTip.UPDATE_FAIL));
     }
 
-    /**
-     * 删除
-     */
     @DeleteMapping("/{id}")
     @ApiOperation(value="删除房屋出租信息")
     public ResultData delete (@PathVariable("id")String id){
@@ -95,9 +86,6 @@ public class RentalInfoController {
                 .orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
     }
 
-    /**
-     * 批量删除
-     */
     @DeleteMapping("/batch")
     @ApiOperation(value="批量删除房屋出租信息")
     public ResultData batchDelete (String... ids){
@@ -107,8 +95,8 @@ public class RentalInfoController {
                 .orElseThrow(() -> new BasicException(SystemTip.DELETE_FAIL));
     }
 
-    @GetMapping("/cancellation/{rentalId}")
-    @ApiOperation(value="查询退租办理信息",response = CancellationVO.class)
+    @GetMapping("/web/cancellation/{rentalId}")
+    @ApiOperation(value="web查询退租办理信息",response = CancellationVO.class)
     public ResultData findCancellation (@PathVariable("rentalId")String rentalId){
         return ResultData.success(rentalInfoService.findCancellation(rentalId));
     }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mioto.pms.module.basic.dao.BasicDao">
+
+
+    <insert id="saveScheduler">
+        insert into scheduler (id,scheduler_time,scheduler_type,scheduler_param) values (#{id},#{schedulerTime},#{schedulerType},#{schedulerParam})
+    </insert>
+    <delete id="removeScheduler">
+        delete from scheduler where id = #{schedulerId}
+    </delete>
+    <select id="findListByType" resultType="com.mioto.pms.module.basic.model.Scheduler">
+        select id,scheduler_time schedulerTime,scheduler_type schedulerType,scheduler_param schedulerParam from scheduler where scheduler_type = #{schedulerType}
+    </select>
+</mapper>

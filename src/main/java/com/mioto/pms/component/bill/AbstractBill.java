@@ -18,7 +18,7 @@ public abstract class AbstractBill {
         double totalAmount = createChildBill(obj);
 
         if (genMainBill){
-            createMainBill();
+            createMainBill(totalAmount);
         }else {
             updateMainBill(totalAmount);
         }
@@ -26,13 +26,24 @@ public abstract class AbstractBill {
         hook();
     }
 
-
-    protected void createMainBill(){
+    /**
+     * 新增主账单
+     */
+    protected void createMainBill(double totalAmount){
 
     }
 
+    /**
+     * 生成子账单
+     * @param obj
+     * @return
+     */
     protected abstract double createChildBill(Object obj);
 
+    /**
+     * 更新主账单金额
+     * @param totalAmount
+     */
     protected  void updateMainBill(double totalAmount) {
     }
 

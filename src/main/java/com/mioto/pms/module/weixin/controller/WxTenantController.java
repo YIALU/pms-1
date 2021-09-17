@@ -1,6 +1,6 @@
 package com.mioto.pms.module.weixin.controller;
 
-import com.mioto.pms.module.cost.model.CostDetail;
+import com.mioto.pms.module.cost.model.CostDetailListVO;
 import com.mioto.pms.module.cost.service.ICostDetailService;
 import com.mioto.pms.module.weixin.model.ContractInfoVO;
 import com.mioto.pms.module.weixin.model.TenantBillVO;
@@ -41,7 +41,7 @@ public class WxTenantController {
     }
 
     @GetMapping("/billDetails")
-    @ApiOperation(value="账单明细",response = CostDetail.class)
+    @ApiOperation(value="账单明细",response = CostDetailListVO.class)
     public ResultData findBillDetails (String costInfoId){
         return ResultData.success(costDetailService.findListByCostInfoId(costInfoId));
     }

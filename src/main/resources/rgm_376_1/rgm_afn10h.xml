@@ -1,0 +1,98 @@
+<datas path="afn10h">
+    <!-- <data name="Control_BreakDisconnect" path="f26">
+        <remark>遥控跳闸</remark>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>30</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>0</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+    </data>
+
+    <data name="Control_BreakConnect" path="f27">
+        <remark>遥控合闸</remark>
+        <field name="delayTime">
+            <remark>延时时间</remark>
+            <defaultValue>30</defaultValue>
+            <fieldType name="unsigned8"/>
+            <unit>second</unit>
+        </field>
+    </data> -->
+    <data name="Forward_SwitchOn" path="f1">
+        <remark>转发合闸</remark>
+        <field name="dataUnit">
+            <remark>数据单元</remark>
+            <defaultValue>001c0ada6b1f</defaultValue>
+            <fieldType name="hexString">
+            	<length>6</length>
+            </fieldType>
+        </field>
+        <field name="dataContent">
+            <remark>数据内容</remark>
+            <defaultValue>16bf543a5c556363334f3333333545678935101c6820210406020168</defaultValue>
+            <fieldType name="hexString">
+            	<length>28</length>
+            </fieldType>
+        </field>
+    </data>
+    <data name="Forward_SwitchOff" path="f1">
+        <remark>转发跳闸</remark>
+        <field name="dataUnit">
+            <remark>数据单元</remark>
+            <defaultValue>001c0ada6b1f</defaultValue>
+            <fieldType name="hexString">
+            	<length>6</length>
+            </fieldType>
+        </field>
+        <field name="dataContent">
+            <remark>数据内容</remark>
+            <defaultValue>1618543a5b475a8c334d3333333545678935101c6820210406020168</defaultValue>
+            <fieldType name="hexString">
+            	<length>28</length>
+            </fieldType>
+        </field>
+    </data>
+    
+    <data name="Forward_WaterMeter_SwitchOn" path="f1">
+        <remark>转发水表合闸</remark>
+        <field name="dataUnit">
+            <remark>数据单元</remark>
+            <defaultValue>00220ada6b1f</defaultValue>
+            <fieldType name="hexString">
+            	<length>6</length>
+            </fieldType>
+        </field>
+        <field name="dataContent">
+            <remark>数据内容</remark>
+            <defaultValue>68010014092006681b1603fefefefe6810340001091920000404a017005503165c16</defaultValue>
+            <fieldType name="hexString">
+            	<length>34</length>
+            </fieldType>
+        </field>
+    </data>
+    <data name="Forward_WaterMeter_SwitchOff" path="f1">
+        <remark>转发水表跳闸</remark>
+        <field name="dataUnit">
+            <remark>数据单元</remark>
+            <defaultValue>00220ada6b1f</defaultValue>
+            <fieldType name="hexString">
+            	<length>6</length>
+            </fieldType>
+        </field>
+        
+        <field name="dataContent">
+            <remark>数据内容</remark>
+            <defaultValue>68010014092006681b1603fefefefe6810340001091920000404a017005503165c16</defaultValue>
+            <fieldType name="hexString">
+            	<length>34</length>
+            </fieldType>
+        </field>
+    </data>
+
+</datas>
