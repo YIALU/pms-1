@@ -29,6 +29,10 @@ public class TenantHomeVO {
     private String address;
     @ApiModelProperty(value = "房间名")
     private String roomName;
+    @ApiModelProperty(value = "房东openid")
+    private String landlordOpenId;
     @ApiModelProperty(value = "未缴费账单列表")
     private List<TenantBillVO> unpaidFeesVOList;
+
+
 }

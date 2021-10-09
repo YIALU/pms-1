@@ -12,6 +12,7 @@ import com.mioto.pms.module.meter.service.MeterReadingService;
 import com.mioto.pms.netty.NettyServer;
 import com.mioto.pms.quartz.MeterReadingDayTask;
 import com.mioto.pms.quartz.MeterReadingMonthTask;
+import com.mioto.pms.quartz.OverdueNotifyTask;
 import com.mioto.pms.quartz.QuartzManager;
 import com.mioto.pms.utils.BaseUtil;
 import com.mioto.pms.utils.SpringBeanUtil;
@@ -93,7 +94,7 @@ public class PmsApplication {
         for (Scheduler scheduler : schedulerList) {
             QuartzManager quartzManager = new QuartzManager();
             final String schedulingPattern = quartzManager.createFixQuartz(scheduler.getSchedulerTime());
-            quartzManager.startTask(scheduler.getId(), schedulingPattern, JSONUtil.toBean(scheduler.getSchedulerParam(),MeterReadingDayTask.class));
+            quartzManager.startTask(scheduler.getId(), schedulingPattern, JSONUtil.toBean(scheduler.getSchedulerParam(), OverdueNotifyTask.class));
             log.info("创建催收短信定时任务 - 任务执行日期 - {} ",scheduler.getSchedulerTime());
         }
     }

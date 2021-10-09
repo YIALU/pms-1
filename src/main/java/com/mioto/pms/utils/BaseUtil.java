@@ -12,6 +12,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONUtil;
+import cn.hutool.setting.dialect.Props;
 import com.mioto.pms.module.user.model.User;
 import com.mioto.pms.module.weixin.model.MiniProgramUser;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,8 @@ import java.util.Date;
  */
 @Slf4j
 public class BaseUtil {
+
+    private static String privateKeyPath;
     /**
      * 获取登录用户信息
      * @return
@@ -296,7 +299,7 @@ public class BaseUtil {
      */
     private static String sign(byte[] message) throws Exception{
         Signature sign = Signature.getInstance("SHA256withRSA");
-        final String filePath = "F:/work/pms/apiclient_key.pem";
+        final String filePath = getPrivateKeyPath();
         sign.initSign(getPrivateKey(filePath));
         sign.update(message);
         return Base64.getEncoder().encodeToString(sign.sign());
@@ -348,5 +351,13 @@ public class BaseUtil {
         } catch (InvalidKeySpecException e) {
             throw new RuntimeException("无效的密钥格式");
         }
+    }
+
+    private static String getPrivateKeyPath(){
+        if (StrUtil.isEmpty(privateKeyPath)){
+            Props props = new Props("application.properties");
+            privateKeyPath = props.getProperty("private.key.path");
+        }
+        return privateKeyPath;
     }
 }
