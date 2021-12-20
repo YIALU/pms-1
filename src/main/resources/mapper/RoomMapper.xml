@@ -13,6 +13,7 @@
         <result property="arrearsId" column="t_arrears_id"/>
         <result property="userId" column="t_user_id"/>
         <result property="siteId" column="t_site_id"/>
+        <result property="area" column="t_area"/>
     </resultMap>
 
     <resultMap id="roomDTOResultMap" type="com.mioto.pms.module.room.model.RoomListVO">
@@ -46,7 +47,8 @@
         t.`meter_water` AS t_meter_water,
         t.`arrears_id` AS t_arrears_id,
         t.`user_id` AS t_user_id,
-        t.`site_id` as t_site_id
+        t.`site_id` as t_site_id,
+        t.`area` as t_area
     </sql>
 
     <sql id="roomDTOAliasColumns">
@@ -95,6 +97,9 @@
             <if test="siteId != null">
                 `site_id`,
             </if>
+            <if test="area != null">
+                `area`,
+            </if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -131,6 +136,9 @@
             <if test="siteId != null">
                 #{siteId},
             </if>
+            <if test="area != null">
+                #{area},
+            </if>
         </trim>
     </insert>
 
@@ -163,6 +171,9 @@
             </if>
             <if test="siteId != null">
                 `site_id` = #{siteId},
+            </if>
+            <if test="area != null">
+                `area` =#{area},
             </if>
         </trim>
         where id = #{id}

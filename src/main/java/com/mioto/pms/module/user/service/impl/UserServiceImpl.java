@@ -104,7 +104,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<MiniProgramUserListVO> findMiniProgramUserList(String name,String phone) {
-        return userDao.findMiniProgramUserList(name,phone);
+    public List<MiniProgramUserListVO> findMiniProgramUserList(String name,String phone,String wxNickname) {
+        return userDao.findMiniProgramUserList(name,phone,wxNickname);
     }
 }

@@ -22,4 +22,6 @@ public class RentalDTO {
     private String tenantInfo;
     @ApiModelProperty(value = "用户id")
     private Integer userId;
+    @ApiModelProperty(value = "房东id")
+    private Integer landlordId;
 }

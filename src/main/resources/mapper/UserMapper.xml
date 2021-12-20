@@ -114,10 +114,10 @@
              `phone` = #{phone},
             </if>
             <if test="name != null">
-                #{name},
+                `name` = #{name},
             </if>
             <if test="nickname != null">
-                #{nickname}
+                `nickname` = #{nickname}
             </if>
   </trim>
         where id = #{id}
@@ -192,6 +192,9 @@
         </if>
         <if test="name != null and name != ''">
             and locate(#{name},b.name)
+        </if>
+        <if test="wxNickname != null and wxNickname != ''">
+            and locate(#{wxNickname},a.wx_nickname)
         </if>
     </select>
 </mapper>

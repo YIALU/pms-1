@@ -1,7 +1,6 @@
 package com.mioto.pms.module.room.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.mioto.pms.utils.BaseUtil;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -35,6 +34,8 @@ public class Room implements Serializable {
     */
     @ApiModelProperty(value = "房间样式")
     private String style;
+    @ApiModelProperty(value = "小区/楼栋")
+    private String area;
 
     /**
     * 业主id

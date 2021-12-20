@@ -42,6 +42,7 @@ import java.util.Date;
 public class BaseUtil {
 
     private static String privateKeyPath;
+    private static String profile;
     /**
      * 获取登录用户信息
      * @return
@@ -60,7 +61,7 @@ public class BaseUtil {
     }
 
     /**
-     * 当前登录用户角色id  - 当前只需要判断是否为房东（id:2）即可,如果是房东加入数据筛选条件
+     * 当前登录用户角色id
      * @return
      */
     private static Integer getLoginUserRoleId() {
@@ -70,7 +71,7 @@ public class BaseUtil {
 
     public static Integer getLogonUserId(){
         Integer userId = null;
-        if (getLoginUserRoleId() != null && getLoginUserRoleId()  == 2){
+        if (getLoginUserRoleId() > 1){
             userId = getLoginUser().getId();
         }
         return userId;
@@ -355,9 +356,24 @@ public class BaseUtil {
 
     private static String getPrivateKeyPath(){
         if (StrUtil.isEmpty(privateKeyPath)){
-            Props props = new Props("application.properties");
+            Props props = new Props(getProfilesActive());
             privateKeyPath = props.getProperty("private.key.path");
         }
         return privateKeyPath;
+    }
+
+    private static String getProfilesActive(){
+        if (StrUtil.isEmpty(profile)) {
+            String[] activeProfiles = SpringBeanUtil.getApplicationContext().getEnvironment().getActiveProfiles();
+            for (String activeProfile : activeProfiles) {
+                if (StrUtil.isNotEmpty(activeProfile)){
+                    profile = StrBuilder.create("application-").append(activeProfile).append(".properties").toString();
+                }else {
+                    profile = "application.properties";
+                }
+                break;
+            }
+        }
+        return profile;
     }
 }

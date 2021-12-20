@@ -99,7 +99,7 @@
     </select>
 
     <select id="costTypeCount" resultType="com.mioto.pms.module.statistics.model.CostTypeVO">
-        select sum(a.pay_amount) amount,b.cost_type costType
+        select sum(a.pay_amount) amount,case when b.type =1 then (select name from dictionary where id =b.cost_type ) else  (select name from cost_type where id =b.cost_type ) end costType
         from pay_info a
         left join cost_detail b on a.bill_number = b.bill_child_number
         <if test="logonUserId != null">

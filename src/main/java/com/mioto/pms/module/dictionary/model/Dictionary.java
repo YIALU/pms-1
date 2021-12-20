@@ -62,6 +62,8 @@ public class Dictionary implements Serializable {
     @ApiModelProperty(value = "父id")
     private String pid;
 
+    @ApiModelProperty(value = "sort")
+    private String sortno;
 
     public Dictionary get(){
         return this;

@@ -175,6 +175,9 @@
             <if test="userId != null">
                 AND a.user_id = #{userId}
             </if>
+            <if test="landlordId != null">
+                and a.user_id = #{landlordId}
+            </if>
         </trim>
         group by a.id
         order by b.create_date desc

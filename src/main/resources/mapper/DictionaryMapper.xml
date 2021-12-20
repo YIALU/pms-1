@@ -160,6 +160,7 @@
             </if>
             and t.status =1
         </trim>
+        order by sortno
     </select>
 
     <select id="findDictionary" resultMap="dictionaryResultMap">
